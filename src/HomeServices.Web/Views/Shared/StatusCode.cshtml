@@ -1,0 +1,18 @@
+@model StatusCodeViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<section class="status-page">
+    <div class="container" style="max-width: 560px">
+        <div class="status-code">@Model.Code</div>
+        <h1 class="h3 mb-3">@Model.Title</h1>
+        <p class="text-secondary mb-4">@Model.Message</p>
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+            <a class="btn btn-primary" asp-controller="Home" asp-action="Index">
+                <i class="fa-solid fa-house" aria-hidden="true"></i>العودة للرئيسية
+            </a>
+            <a class="btn btn-soft" href="/#categories">تصفّح الخدمات</a>
+        </div>
+    </div>
+</section>

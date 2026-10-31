@@ -1,0 +1,15 @@
+@model CategoryDto
+<a class="category-card" href="/Categories/@Model.Slug" style="--accent: @Model.AccentColor">
+    <span class="category-icon"><i class="@Model.IconClass" aria-hidden="true"></i></span>
+    <div>
+        <h3>@Model.Name</h3>
+        @if (!string.IsNullOrEmpty(Model.Description))
+        {
+            <p class="mt-2">@Model.Description</p>
+        }
+    </div>
+    <div class="category-meta">
+        <span>@(Model.ProvidersCount > 0 ? Model.ProvidersCount.ToProvidersCountText() : "استكشف الخدمات")</span>
+        <span class="go"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></span>
+    </div>
+</a>

@@ -1,0 +1,42 @@
+{
+  "version": "3.0",
+  "defaultProvider": "jsdelivr",
+  "libraries": [
+    {
+      "library": "@fortawesome/fontawesome-free@6.7.2",
+      "destination": "wwwroot/lib/fontawesome/",
+      "files": [
+        "css/all.min.css",
+        "webfonts/fa-solid-900.woff2",
+        "webfonts/fa-regular-400.woff2",
+        "webfonts/fa-brands-400.woff2"
+      ]
+    },
+    {
+      "library": "@fontsource/ibm-plex-sans-arabic@5.1.1",
+      "destination": "wwwroot/fonts/ibm-plex-sans-arabic/",
+      "files": [
+        "files/ibm-plex-sans-arabic-arabic-400-normal.woff2",
+        "files/ibm-plex-sans-arabic-arabic-500-normal.woff2",
+        "files/ibm-plex-sans-arabic-arabic-600-normal.woff2",
+        "files/ibm-plex-sans-arabic-arabic-700-normal.woff2",
+        "files/ibm-plex-sans-arabic-latin-400-normal.woff2",
+        "files/ibm-plex-sans-arabic-latin-500-normal.woff2",
+        "files/ibm-plex-sans-arabic-latin-600-normal.woff2",
+        "files/ibm-plex-sans-arabic-latin-700-normal.woff2"
+      ]
+    },
+    {
+      "library": "@fontsource/readex-pro@5.1.1",
+      "destination": "wwwroot/fonts/readex-pro/",
+      "files": [
+        "files/readex-pro-arabic-500-normal.woff2",
+        "files/readex-pro-arabic-600-normal.woff2",
+        "files/readex-pro-arabic-700-normal.woff2",
+        "files/readex-pro-latin-500-normal.woff2",
+        "files/readex-pro-latin-600-normal.woff2",
+        "files/readex-pro-latin-700-normal.woff2"
+      ]
+    }
+  ]
+}

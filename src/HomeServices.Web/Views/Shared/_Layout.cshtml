@@ -1,0 +1,180 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using HomeServices.Domain.Entities
+@using HomeServices.Application.Constants
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var pageTitle = ViewData["Title"] as string;
+    var fullTitle = string.IsNullOrEmpty(pageTitle) ? "HomeServices | كل خدمات بيتك في مكان واحد" : $"{pageTitle} | HomeServices";
+    var description = ViewData["Description"] as string
+        ?? "منصة HomeServices تربطك بأفضل مقدمي الخدمات المنزلية في سوريا: كهرباء، سباكة، دهان، تكييف، نقل عفش، طبخ وتنظيف.";
+    var currentUser = SignInManager.IsSignedIn(User) ? await UserManager.GetUserAsync(User) : null;
+}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="@description" />
+    <meta name="theme-color" content="#0E5E6F" />
+    <title>@fullTitle</title>
+
+    <link rel="preload" href="~/fonts/ibm-plex-sans-arabic/files/ibm-plex-sans-arabic-arabic-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.rtl.min.css" />
+    <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+    <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+    <a class="skip-link" href="#main-content">تخطَّ إلى المحتوى</a>
+
+    <header class="site-header" id="site-header">
+        <div class="container">
+            <a class="brand" asp-controller="Home" asp-action="Index" aria-label="HomeServices - الصفحة الرئيسية">
+                <span class="brand-mark"><i class="fa-solid fa-house-chimney" aria-hidden="true"></i></span>
+                <span class="brand-text">
+                    <span class="brand-name">Home<span>Services</span></span>
+                    <span class="brand-tagline">خدماتك المنزلية بثقة</span>
+                </span>
+            </a>
+
+            <nav class="d-none d-lg-block" aria-label="التنقل الرئيسي">
+                <ul class="main-nav">
+                    <li><a asp-controller="Home" asp-action="Index">الرئيسية</a></li>
+                    <li><a href="/#categories">الخدمات</a></li>
+                    <li><a href="/Providers">مقدمو الخدمات</a></li>
+                    <li><a href="/#how-it-works">كيف نعمل</a></li>
+                </ul>
+            </nav>
+
+            <div class="header-actions">
+                @if (currentUser is not null)
+                {
+                    <div class="dropdown">
+                        <button class="user-chip dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            @if (!string.IsNullOrEmpty(currentUser.ProfileImagePath))
+                            {
+                                <img class="avatar" src="@currentUser.ProfileImagePath" alt="" />
+                            }
+                            else
+                            {
+                                <span class="avatar" aria-hidden="true">@currentUser.FullName.ToInitials()</span>
+                            }
+                            <span class="d-none d-sm-inline">@currentUser.FullName</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            @if (User.IsInRole(Roles.Admin))
+                            {
+                                <li><a class="dropdown-item" href="/Admin"><i class="fa-solid fa-gauge-high"></i>لوحة الإدارة</a></li>
+                            }
+                            @if (User.IsInRole(Roles.Provider))
+                            {
+                                <li><a class="dropdown-item" href="/Provider"><i class="fa-solid fa-briefcase"></i>لوحة مقدم الخدمة</a></li>
+                            }
+                            @if (User.IsInRole(Roles.Customer))
+                            {
+                                <li><a class="dropdown-item" href="/Customer"><i class="fa-solid fa-list-check"></i>طلباتي</a></li>
+                            }
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <form method="post" action="/Account/Logout" asp-antiforgery="true">
+                                    <button type="submit" class="dropdown-item text-danger"><i class="fa-solid fa-arrow-right-from-bracket text-danger"></i>تسجيل الخروج</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <a class="btn btn-ghost d-none d-md-inline-flex" href="/Account/Login">تسجيل الدخول</a>
+                    <a class="btn btn-primary d-none d-sm-inline-flex" href="/Account/Register?type=provider">
+                        <i class="fa-solid fa-user-plus" aria-hidden="true"></i>انضم كمقدم خدمة
+                    </a>
+                }
+
+                <button class="nav-toggle d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-controls="mobileNav" aria-label="فتح القائمة">
+                    <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="offcanvas offcanvas-start offcanvas-nav" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
+        <div class="offcanvas-header border-bottom">
+            <h2 class="offcanvas-title h5 mb-0" id="mobileNavLabel">القائمة</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="إغلاق"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column gap-1">
+            <a asp-controller="Home" asp-action="Index"><i class="fa-solid fa-house"></i>الرئيسية</a>
+            <a href="/#categories" data-bs-dismiss="offcanvas"><i class="fa-solid fa-grip"></i>الخدمات</a>
+            <a href="/Providers"><i class="fa-solid fa-users"></i>مقدمو الخدمات</a>
+            <a href="/#how-it-works" data-bs-dismiss="offcanvas"><i class="fa-solid fa-circle-question"></i>كيف نعمل</a>
+            @if (currentUser is null)
+            {
+                <div class="mt-auto d-grid gap-2 pt-3">
+                    <a class="btn btn-soft justify-content-center" href="/Account/Login">تسجيل الدخول</a>
+                    <a class="btn btn-primary justify-content-center" href="/Account/Register?type=provider">انضم كمقدم خدمة</a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <main id="main-content" role="main">
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="row g-4 g-lg-5">
+                <div class="col-lg-4">
+                    <a class="brand mb-3" asp-controller="Home" asp-action="Index">
+                        <span class="brand-mark"><i class="fa-solid fa-house-chimney" aria-hidden="true"></i></span>
+                        <span class="brand-text">
+                            <span class="brand-name">Home<span>Services</span></span>
+                            <span class="brand-tagline">خدماتك المنزلية بثقة</span>
+                        </span>
+                    </a>
+                    <p class="mb-0">منصة سورية تربطك بمقدمي خدمات منزلية موثّقين في محافظتك، بأسعار واضحة وتقييمات حقيقية من العملاء.</p>
+                </div>
+                <div class="col-6 col-lg-2 offset-lg-1">
+                    <h4>المنصة</h4>
+                    <ul class="footer-links">
+                        <li><a asp-controller="Home" asp-action="Index">الرئيسية</a></li>
+                        <li><a href="/#categories">الخدمات</a></li>
+                        <li><a href="/Providers">مقدمو الخدمات</a></li>
+                        <li><a href="/#how-it-works">كيف نعمل</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <h4>الحساب</h4>
+                    <ul class="footer-links">
+                        <li><a href="/Account/Login">تسجيل الدخول</a></li>
+                        <li><a href="/Account/Register">حساب عميل جديد</a></li>
+                        <li><a href="/Account/Register?type=provider">انضم كمقدم خدمة</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3">
+                    <h4>معلومات</h4>
+                    <ul class="footer-links">
+                        <li><a asp-controller="Home" asp-action="Privacy">سياسة الخصوصية</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© @DateTime.Now.Year HomeServices. جميع الحقوق محفوظة.</span>
+                <span>صُنع بعناية في سوريا <i class="fa-solid fa-heart text-danger" aria-hidden="true"></i></span>
+            </div>
+        </div>
+    </footer>
+
+    <partial name="_Toasts" />
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,19 @@
+﻿@model ErrorViewModel
+@{
+    ViewData["Title"] = "حدث خطأ";
+}
+
+<section class="status-page">
+    <div class="container" style="max-width: 560px">
+        <div class="status-code">500</div>
+        <h1 class="h3 mb-3">عذراً، حدث خطأ غير متوقع</h1>
+        <p class="text-secondary mb-4">واجهنا مشكلة أثناء معالجة طلبك. فريقنا سيعمل على حلها، يرجى المحاولة مرة أخرى بعد قليل.</p>
+        @if (Model?.ShowRequestId == true)
+        {
+            <p class="small text-secondary mb-4">رمز المتابعة: <code dir="ltr">@Model.RequestId</code></p>
+        }
+        <a class="btn btn-primary" asp-controller="Home" asp-action="Index">
+            <i class="fa-solid fa-house" aria-hidden="true"></i>العودة للرئيسية
+        </a>
+    </div>
+</section>

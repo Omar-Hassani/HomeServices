@@ -1,0 +1,263 @@
+﻿@model HomeServices.Web.ViewModels.Home.HomeIndexViewModel
+@{
+    ViewData["Title"] = null;
+
+    var stats = new List<(string Icon, int Value, string Label)>();
+    if (Model.Stats.ProvidersCount > 0) stats.Add(("fa-solid fa-user-check", Model.Stats.ProvidersCount, "مقدم خدمة موثّق"));
+    if (Model.Stats.CompletedOrdersCount > 0) stats.Add(("fa-solid fa-circle-check", Model.Stats.CompletedOrdersCount, "طلب مكتمل"));
+    stats.Add(("fa-solid fa-layer-group", Model.Stats.CategoriesCount, "فئة خدمات"));
+    stats.Add(("fa-solid fa-map-location-dot", Model.Stats.CitiesCount, "محافظة سورية"));
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/home.css" asp-append-version="true" />
+}
+
+<!-- ================= Hero ================= -->
+<section class="hero" aria-labelledby="hero-title">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <div class="hero-badge" data-reveal>
+                    <span class="pill">جديد</span>
+                    منصة الخدمات المنزلية في سوريا
+                </div>
+                <h1 class="hero-title" id="hero-title" data-reveal style="--reveal-delay: 80ms">
+                    كل خدمات بيتك…<br />
+                    <span class="highlight">في مكان واحد</span>
+                </h1>
+                <p class="hero-lead" data-reveal style="--reveal-delay: 160ms">
+                    من الكهربائي والسبّاك إلى الدهان وفني التكييف وعمال نقل العفش، اعثر على المحترف المناسب في منطقتك،
+                    قارن الأسعار والتقييمات، واطلب الخدمة بخطوات بسيطة.
+                </p>
+                <div data-reveal style="--reveal-delay: 240ms">
+                    <partial name="_SearchBar" model="Model.Search" />
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="hero-visual" data-reveal style="--reveal-delay: 200ms">
+                    <div class="floating-card fc-1">
+                        <span class="fc-icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></span>
+                        <span>محترفون موثّقون<small>بعد مراجعة إدارة المنصة</small></span>
+                    </div>
+
+                    <div class="hero-panel">
+                        <div class="hero-panel-title">
+                            ماذا تحتاج اليوم؟
+                            <span>اختر الفئة</span>
+                        </div>
+                        <div class="hero-tiles">
+                            @foreach (var category in Model.Categories.Take(8))
+                            {
+                                <a class="hero-tile" href="/Categories/@category.Slug" style="--accent: @category.AccentColor">
+                                    <i class="@category.IconClass" aria-hidden="true"></i>
+                                    <span>@category.Name</span>
+                                </a>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="floating-card fc-2">
+                        <span class="fc-icon"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+                        <span>تقييمات حقيقية<small>بعد إتمام كل خدمة</small></span>
+                    </div>
+                    <div class="floating-card fc-3">
+                        <span class="fc-icon"><i class="fa-solid fa-route" aria-hidden="true"></i></span>
+                        <span>تابع طلبك<small>خطوة بخطوة</small></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-strip">
+            @for (var i = 0; i < stats.Count; i++)
+            {
+                var stat = stats[i];
+                <div class="stat-item" data-reveal style="--reveal-delay: @(i * 80)ms">
+                    <i class="@stat.Icon" aria-hidden="true"></i>
+                    <div>
+                        <strong data-count-to="@stat.Value">@stat.Value.ToString("N0")</strong>
+                        <span>@stat.Label</span>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- ================= الفئات ================= -->
+<section class="section section-alt" id="categories" aria-labelledby="categories-title">
+    <div class="container">
+        <div class="section-heading text-center" data-reveal>
+            <span class="eyebrow"><i class="fa-solid fa-grip" aria-hidden="true"></i>فئات الخدمات</span>
+            <h2 class="section-title" id="categories-title">اختر الخدمة التي تحتاجها</h2>
+            <p class="section-subtitle">خدمات منزلية متنوعة يقدمها محترفون في مجالاتهم، وكل فئة تضم خدمات تفصيلية بأسعار واضحة.</p>
+        </div>
+
+        @if (Model.Categories.Count > 0)
+        {
+            <div class="row g-3 g-md-4">
+                @for (var i = 0; i < Model.Categories.Count; i++)
+                {
+                    <div class="col-6 col-md-4 col-xl-3" data-reveal style="--reveal-delay: @((i % 4) * 70)ms">
+                        <partial name="_CategoryCard" model="Model.Categories[i]" />
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <partial name="_EmptyState" model='new EmptyStateViewModel { Icon = "fa-solid fa-layer-group", Title = "لا توجد فئات خدمات حالياً", Message = "ستظهر فئات الخدمات هنا فور إضافتها من إدارة المنصة." }' />
+        }
+    </div>
+</section>
+
+<!-- ================= كيف تعمل المنصة ================= -->
+<section class="section" id="how-it-works" aria-labelledby="how-title">
+    <div class="container">
+        <div class="section-heading text-center" data-reveal>
+            <span class="eyebrow"><i class="fa-solid fa-circle-question" aria-hidden="true"></i>كيف نعمل</span>
+            <h2 class="section-title" id="how-title">ثلاث خطوات تفصلك عن إنجاز المهمة</h2>
+            <p class="section-subtitle">صمّمنا التجربة لتكون بسيطة وواضحة من أول بحث وحتى تقييم الخدمة.</p>
+        </div>
+
+        <div class="row g-4 steps">
+            <div class="col-md-4" data-reveal>
+                <div class="step-card">
+                    <div class="step-icon"><i class="fa-solid fa-magnifying-glass-location" aria-hidden="true"></i></div>
+                    <h3>ابحث عن الخدمة</h3>
+                    <p>اختر الخدمة ومنطقتك، وتصفّح مقدمي الخدمات المتاحين مع أسعارهم وتقييماتهم.</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-reveal style="--reveal-delay: 100ms">
+                <div class="step-card">
+                    <div class="step-icon"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></div>
+                    <h3>اطلب وحدد الموعد</h3>
+                    <p>أرسل طلبك مع العنوان والموعد المناسب ووصف المشكلة، وسيصلك رد مقدم الخدمة.</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-reveal style="--reveal-delay: 200ms">
+                <div class="step-card">
+                    <div class="step-icon"><i class="fa-solid fa-star-half-stroke" aria-hidden="true"></i></div>
+                    <h3>تابع وقيّم التجربة</h3>
+                    <p>تابع حالة طلبك لحظة بلحظة، وبعد إتمام العمل شاركنا تقييمك لمساعدة غيرك.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= مقدمو الخدمات المميزون ================= -->
+<section class="section section-alt" id="featured-providers" aria-labelledby="providers-title">
+    <div class="container">
+        <div class="section-header-row" data-reveal>
+            <div class="section-heading">
+                <span class="eyebrow"><i class="fa-solid fa-award" aria-hidden="true"></i>نخبة المحترفين</span>
+                <h2 class="section-title" id="providers-title">مقدمو خدمات مميزون</h2>
+                <p class="section-subtitle">الأعلى تقييماً من عملاء المنصة.</p>
+            </div>
+            @if (Model.FeaturedProviders.Count > 0)
+            {
+                <a class="link-arrow" href="/Providers">عرض جميع مقدمي الخدمات <i class="fa-solid fa-arrow-left" aria-hidden="true"></i></a>
+            }
+        </div>
+
+        @if (Model.FeaturedProviders.Count > 0)
+        {
+            <div class="row g-4">
+                @for (var i = 0; i < Model.FeaturedProviders.Count; i++)
+                {
+                    <div class="col-sm-6 col-lg-4 col-xl-3" data-reveal style="--reveal-delay: @((i % 4) * 70)ms">
+                        <partial name="_ProviderCard" model="Model.FeaturedProviders[i]" />
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div data-reveal>
+                <partial name="_EmptyState" model='new EmptyStateViewModel {
+                    Icon = "fa-solid fa-user-plus",
+                    Title = "كن من أوائل مقدمي الخدمات على المنصة",
+                    Message = "لم يُوثَّق أي مقدم خدمة بعد. سجّل الآن وأنشئ ملفك الاحترافي ليظهر هنا أمام العملاء في منطقتك.",
+                    ActionText = "انضم كمقدم خدمة",
+                    ActionUrl = "/Account/Register?type=provider" }' />
+            </div>
+        }
+    </div>
+</section>
+
+<!-- ================= لماذا HomeServices ================= -->
+<section class="section" aria-labelledby="why-title">
+    <div class="container">
+        <div class="section-heading text-center" data-reveal>
+            <span class="eyebrow"><i class="fa-solid fa-heart" aria-hidden="true"></i>لماذا نحن</span>
+            <h2 class="section-title" id="why-title">راحة بالك أولويتنا</h2>
+            <p class="section-subtitle">بنينا المنصة لتمنحك الثقة في كل خدمة تطلبها لبيتك.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3" data-reveal>
+                <div class="feature-card flex-column">
+                    <span class="feature-icon"><i class="fa-solid fa-user-shield" aria-hidden="true"></i></span>
+                    <div>
+                        <h3>محترفون موثّقون</h3>
+                        <p>لا يظهر أي مقدم خدمة للعملاء قبل مراجعة ملفه والموافقة عليه من إدارة المنصة.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" data-reveal style="--reveal-delay: 80ms">
+                <div class="feature-card flex-column">
+                    <span class="feature-icon"><i class="fa-solid fa-comments" aria-hidden="true"></i></span>
+                    <div>
+                        <h3>تقييمات حقيقية</h3>
+                        <p>التقييم متاح فقط للعملاء الذين أتمّوا طلباً فعلياً، فتعرف رأي من جرّب قبلك.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" data-reveal style="--reveal-delay: 160ms">
+                <div class="feature-card flex-column">
+                    <span class="feature-icon"><i class="fa-solid fa-tags" aria-hidden="true"></i></span>
+                    <div>
+                        <h3>أسعار واضحة</h3>
+                        <p>كل مقدم خدمة يعرض أسعاره مسبقاً بالليرة السورية، لتقارن وتختار ما يناسبك.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" data-reveal style="--reveal-delay: 240ms">
+                <div class="feature-card flex-column">
+                    <span class="feature-icon"><i class="fa-solid fa-bell" aria-hidden="true"></i></span>
+                    <div>
+                        <h3>متابعة لحظية</h3>
+                        <p>إشعار عند كل تحديث على طلبك: القبول، بدء التنفيذ، وإتمام العمل.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= دعوة مقدمي الخدمات ================= -->
+<section class="pb-5 mb-lg-4" aria-labelledby="cta-title">
+    <div class="container">
+        <div class="provider-cta" data-reveal>
+            <div class="row align-items-center g-4">
+                <div class="col-lg-8">
+                    <h2 id="cta-title">هل أنت محترف في مجالك؟</h2>
+                    <p class="mb-0 fs-5">انضم إلى HomeServices وأنشئ ملفك الاحترافي، وابدأ باستقبال طلبات العملاء في منطقتك.</p>
+                    <ul class="cta-points">
+                        <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i>استقبل الطلبات مباشرة</li>
+                        <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i>حدد أسعارك ومناطق عملك</li>
+                        <li><i class="fa-solid fa-circle-check" aria-hidden="true"></i>ابنِ سمعتك بالتقييمات</li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 text-lg-start">
+                    <a class="btn btn-accent btn-lg" href="/Account/Register?type=provider">
+                        ابدأ الآن <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,69 @@
+@model ProviderCardDto
+<article class="provider-card">
+    <div class="provider-body">
+        <div class="provider-head">
+            <div class="provider-avatar-wrap">
+                @if (!string.IsNullOrEmpty(Model.ProfileImagePath))
+                {
+                    <img class="avatar" src="@Model.ProfileImagePath" alt="@Model.FullName" loading="lazy" />
+                }
+                else
+                {
+                    <span class="avatar" aria-hidden="true">@Model.FullName.ToInitials()</span>
+                }
+                <span class="availability-dot @(Model.IsAvailable ? "is-available" : null)"
+                      title="@(Model.IsAvailable ? "متاح لاستقبال الطلبات" : "غير متاح حالياً")"></span>
+            </div>
+            <div class="min-w-0">
+                <h3 class="provider-name">
+                    @Model.FullName
+                    <i class="fa-solid fa-circle-check verified" title="مقدم خدمة موثّق" aria-label="موثّق"></i>
+                </h3>
+                <p class="provider-headline">@Model.Headline</p>
+            </div>
+        </div>
+
+        <div class="provider-tags">
+            @if (!string.IsNullOrEmpty(Model.PrimaryCategoryName))
+            {
+                <span class="tag tag-primary"><i class="fa-solid fa-toolbox" aria-hidden="true"></i>@Model.PrimaryCategoryName</span>
+            }
+            @if (!string.IsNullOrEmpty(Model.CityName))
+            {
+                <span class="tag"><i class="fa-solid fa-location-dot" aria-hidden="true"></i>@Model.CityName</span>
+            }
+            <span class="tag"><i class="fa-solid fa-briefcase" aria-hidden="true"></i>@Model.YearsOfExperience.ToYearsOfExperienceText()</span>
+        </div>
+
+        <div class="provider-stats">
+            @if (Model.ReviewsCount > 0)
+            {
+                <span class="d-inline-flex align-items-center gap-2">
+                    <star-rating value="@Model.AverageRating" />
+                    <span class="rating-value">@Model.AverageRating.ToRatingText()</span>
+                    <span>(@Model.ReviewsCount.ToReviewsCountText())</span>
+                </span>
+            }
+            else
+            {
+                <span class="tag tag-accent"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>جديد على المنصة</span>
+            }
+        </div>
+    </div>
+
+    <div class="provider-footer">
+        <div class="price-from">
+            @if (Model.StartingPrice is decimal price && Model.StartingPriceUnit is { } unit)
+            {
+                <small>يبدأ من</small>
+                <strong>@price.ToPrice(unit)</strong>
+            }
+            else
+            {
+                <small>السعر</small>
+                <strong>حسب الطلب</strong>
+            }
+        </div>
+        <a class="btn btn-soft btn-sm stretched-link" href="/Providers/Details/@Model.Id" aria-label="عرض ملف @Model.FullName">عرض الملف</a>
+    </div>
+</article>
