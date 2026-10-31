@@ -60,6 +60,9 @@ public static class DependencyInjection
         services.AddScoped<IProviderProfileService, ProviderProfileService>();
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IReviewService, ReviewService>();
+
+        // قنوات إضافية مستقبلاً: services.AddScoped<INotificationChannel, EmailNotificationChannel>();
+        services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<ILocationService, LocationService>();
         services.AddScoped<IProviderDirectoryService, ProviderDirectoryService>();

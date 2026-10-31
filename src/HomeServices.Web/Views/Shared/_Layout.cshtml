@@ -53,6 +53,7 @@
             <div class="header-actions">
                 @if (currentUser is not null)
                 {
+                    @await Component.InvokeAsync("NotificationBell")
                     <div class="dropdown">
                         <button class="user-chip dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             @if (!string.IsNullOrEmpty(currentUser.ProfileImagePath))

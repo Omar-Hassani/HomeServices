@@ -1,0 +1,60 @@
+@model NotificationsPageViewModel
+@{
+    ViewData["Title"] = "الإشعارات";
+}
+
+<section class="page-hero">
+    <div class="container" style="max-width: 860px">
+        <ol class="breadcrumb-hs">
+            <li><a asp-controller="Home" asp-action="Index">الرئيسية</a></li>
+            <li aria-current="page">الإشعارات</li>
+        </ol>
+        <div class="d-flex flex-wrap align-items-end justify-content-between gap-3">
+            <div>
+                <h1>الإشعارات</h1>
+                <p>@(Model.UnreadCount > 0 ? $"غير المقروءة: {Model.UnreadCount}" : "لا توجد إشعارات غير مقروءة.")</p>
+            </div>
+            @if (Model.UnreadCount > 0)
+            {
+                <form asp-action="MarkAllRead" method="post">
+                    <button type="submit" class="btn btn-soft"><i class="fa-solid fa-check-double" aria-hidden="true"></i><span class="btn-label">تعليم الكل كمقروء</span></button>
+                </form>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section pt-4">
+    <div class="container" style="max-width: 860px">
+        @if (Model.Notifications.Items.Count > 0)
+        {
+            <div class="notification-page-list">
+                @foreach (var n in Model.Notifications.Items)
+                {
+                    var style = n.Type.ToNotificationStyle();
+                    <a class="notification-item @(n.IsRead ? null : "is-unread")" asp-action="Open" asp-route-id="@n.Id">
+                        <span class="notification-icon @style.Tone"><i class="@style.Icon" aria-hidden="true"></i></span>
+                        <span class="notification-text">
+                            <strong>@n.Title</strong>
+                            <span>@n.Message</span>
+                            <small>@n.CreatedAt.ToRelativeTime()</small>
+                        </span>
+                        @if (!n.IsRead)
+                        {
+                            <span class="unread-dot" aria-label="غير مقروء"></span>
+                        }
+                    </a>
+                }
+            </div>
+
+            <partial name="_Pagination" model="Model.Pagination" />
+        }
+        else
+        {
+            <partial name="_EmptyState" model='new EmptyStateViewModel {
+                Icon = "fa-regular fa-bell",
+                Title = "لا توجد إشعارات بعد",
+                Message = "ستصلك هنا تحديثات طلباتك وتقييماتك فور حدوثها." }' />
+        }
+    </div>
+</section>

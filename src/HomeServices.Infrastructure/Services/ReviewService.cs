@@ -1,4 +1,5 @@
 using HomeServices.Application.Common;
+using HomeServices.Application.DTOs.Notifications;
 using HomeServices.Application.DTOs.Providers;
 using HomeServices.Application.DTOs.Reviews;
 using HomeServices.Application.Interfaces;
@@ -10,7 +11,10 @@ using Microsoft.Extensions.Logging;
 
 namespace HomeServices.Infrastructure.Services;
 
-internal sealed class ReviewService(ApplicationDbContext db, ILogger<ReviewService> logger) : IReviewService
+internal sealed class ReviewService(
+    ApplicationDbContext db,
+    INotificationService notifications,
+    ILogger<ReviewService> logger) : IReviewService
 {
     private const int PageSize = 10;
 
@@ -85,6 +89,19 @@ internal sealed class ReviewService(ApplicationDbContext db, ILogger<ReviewServi
         }
 
         logger.LogInformation("Review added for order {OrderId} with rating {Rating}", order.Id, input.Rating);
+
+        var providerUserId = await db.ProviderProfiles
+            .Where(p => p.Id == order.ProviderProfileId)
+            .Select(p => p.UserId)
+            .FirstAsync(cancellationToken);
+
+        await notifications.NotifyAsync(new NotificationMessage(
+            providerUserId,
+            NotificationType.NewReview,
+            $"تقييم جديد: {input.Rating} من 5",
+            comment is null ? "قيّم أحد عملائك خدمتك بعد إتمام الطلب." : $"قيّم أحد عملائك خدمتك: «{comment}»",
+            NotificationLinks.ProviderReviews), cancellationToken);
+
         return Result.Success();
     }
 

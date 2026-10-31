@@ -177,6 +177,36 @@
         });
     });
 
+    // تحديث عدد الإشعارات غير المقروءة دورياً (يتوقف عندما تكون الصفحة في الخلفية)
+    const bell = document.querySelector('[data-notification-bell]');
+    if (bell) {
+        const badge = bell.querySelector('[data-bell-badge]');
+        const url = bell.dataset.countUrl;
+        let last = parseInt(badge.textContent, 10) || 0;
+
+        const refresh = async () => {
+            if (document.hidden) return;
+            try {
+                const response = await fetch(url, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' });
+                if (!response.ok) return;
+                const { count } = await response.json();
+                badge.hidden = count === 0;
+                badge.textContent = count > 99 ? '99+' : String(count);
+                if (count > last) {
+                    badge.classList.remove('is-bumped');
+                    void badge.offsetWidth; // إعادة تشغيل الحركة
+                    badge.classList.add('is-bumped');
+                }
+                last = count;
+            } catch {
+                // انقطاع مؤقت في الشبكة: نحاول في الدورة التالية
+            }
+        };
+
+        setInterval(refresh, 60000);
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+    }
+
     // إظهار التنبيهات القادمة من الخادم
     if (window.bootstrap) {
         document.querySelectorAll('.toast[data-autoshow]').forEach((el) => {

@@ -46,6 +46,29 @@ public static class DisplayExtensions
         return date.ToString("dddd d MMMM");
     }
 
+    /// <summary>
+    /// وقت نسبي بالعربية: "الآن"، "منذ 5 دقائق"، "منذ ساعتين"، "أمس"... وبعد أسبوع يُعرض التاريخ.
+    /// </summary>
+    public static string ToRelativeTime(this DateTime utc)
+    {
+        var elapsed = DateTime.UtcNow - DateTime.SpecifyKind(utc, DateTimeKind.Utc);
+        if (elapsed < TimeSpan.FromMinutes(1)) return "الآن";
+        if (elapsed < TimeSpan.FromHours(1)) return "منذ " + ArabicCount((int)elapsed.TotalMinutes, "دقيقة", "دقيقتين", "دقائق", "دقيقة");
+        if (elapsed < TimeSpan.FromDays(1)) return "منذ " + ArabicCount((int)elapsed.TotalHours, "ساعة", "ساعتين", "ساعات", "ساعة");
+        if (elapsed < TimeSpan.FromDays(2)) return "أمس";
+        if (elapsed < TimeSpan.FromDays(7)) return "منذ " + ArabicCount((int)elapsed.TotalDays, "يوم", "يومين", "أيام", "يوماً");
+        return utc.ToSyriaDate();
+    }
+
+    public static (string Icon, string Tone) ToNotificationStyle(this NotificationType type) => type switch
+    {
+        NotificationType.NewOrder => ("fa-solid fa-inbox", "is-primary"),
+        NotificationType.OrderStatusChanged => ("fa-solid fa-arrows-rotate", "is-info"),
+        NotificationType.NewReview => ("fa-solid fa-star", "is-accent"),
+        NotificationType.ProviderVerification => ("fa-solid fa-shield-halved", "is-success"),
+        _ => ("fa-solid fa-bell", "is-muted")
+    };
+
     public static string ToRoleDisplayName(this string role) => role switch
     {
         Roles.Admin => "مدير المنصة",

@@ -1,0 +1,47 @@
+@model NotificationBellViewModel
+<div class="dropdown notification-bell" data-notification-bell data-count-url="@Url.Action("UnreadCount", "Notifications", new { area = "" })">
+    <button class="bell-btn" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"
+            aria-label="الإشعارات@(Model.UnreadCount > 0 ? $" ({Model.UnreadCount} غير مقروءة)" : "")">
+        <i class="fa-regular fa-bell" aria-hidden="true"></i>
+        <span class="bell-badge" data-bell-badge hidden="@(Model.UnreadCount == 0)">@(Model.UnreadCount > 99 ? "99+" : Model.UnreadCount.ToString())</span>
+    </button>
+    <div class="dropdown-menu dropdown-menu-end notification-menu">
+        <div class="notification-menu-header">
+            <strong>الإشعارات</strong>
+            @if (Model.UnreadCount > 0)
+            {
+                <form asp-area="" asp-controller="Notifications" asp-action="MarkAllRead" method="post">
+                    <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
+                    <button type="submit" class="btn btn-link btn-sm p-0" data-no-loading>تعليم الكل كمقروء</button>
+                </form>
+            }
+        </div>
+
+        @if (Model.Recent.Count > 0)
+        {
+            <div class="notification-menu-list">
+                @foreach (var n in Model.Recent)
+                {
+                    var style = n.Type.ToNotificationStyle();
+                    <a class="notification-item @(n.IsRead ? null : "is-unread")" asp-area="" asp-controller="Notifications" asp-action="Open" asp-route-id="@n.Id">
+                        <span class="notification-icon @style.Tone"><i class="@style.Icon" aria-hidden="true"></i></span>
+                        <span class="notification-text">
+                            <strong>@n.Title</strong>
+                            <span>@n.Message</span>
+                            <small>@n.CreatedAt.ToRelativeTime()</small>
+                        </span>
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="notification-empty">
+                <i class="fa-regular fa-bell-slash" aria-hidden="true"></i>
+                <span>لا توجد إشعارات بعد</span>
+            </div>
+        }
+
+        <a class="notification-menu-footer" asp-area="" asp-controller="Notifications" asp-action="Index">عرض كل الإشعارات</a>
+    </div>
+</div>

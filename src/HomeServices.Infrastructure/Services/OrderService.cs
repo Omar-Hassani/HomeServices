@@ -12,7 +12,10 @@ using Microsoft.Extensions.Logging;
 
 namespace HomeServices.Infrastructure.Services;
 
-internal sealed class OrderService(ApplicationDbContext db, ILogger<OrderService> logger) : IOrderService
+internal sealed class OrderService(
+    ApplicationDbContext db,
+    INotificationService notifications,
+    ILogger<OrderService> logger) : IOrderService
 {
     private const int PageSize = 10;
     private const int MinReasonLength = 5;
@@ -171,6 +174,8 @@ internal sealed class OrderService(ApplicationDbContext db, ILogger<OrderService
         await db.SaveChangesAsync(cancellationToken);
 
         logger.LogInformation("Order {OrderNumber} created by {CustomerId} for provider {ProviderId}", request.OrderNumber, customerId, provider.Id);
+
+        await notifications.NotifyAsync(OrderNotifications.NewOrder(await LoadNotificationInfoAsync(request.Id, cancellationToken)), cancellationToken);
         return Result<CreatedOrder>.Success(new CreatedOrder(request.Id, request.OrderNumber));
     }
 
@@ -341,8 +346,25 @@ internal sealed class OrderService(ApplicationDbContext db, ILogger<OrderService
         }
 
         logger.LogInformation("Order {OrderNumber}: {From} -> {To} by {UserId}", request.OrderNumber, previousStatus, newStatus, userId);
+
+        var info = await LoadNotificationInfoAsync(request.Id, cancellationToken);
+        await notifications.NotifyAsync(OrderNotifications.StatusChanged(info, input.Action, note), cancellationToken);
         return Result.Success();
     }
+
+    private Task<OrderNotifications.OrderInfo> LoadNotificationInfoAsync(int orderId, CancellationToken cancellationToken) =>
+        db.ServiceRequests
+            .AsNoTracking()
+            .Where(r => r.Id == orderId)
+            .Select(r => new OrderNotifications.OrderInfo(
+                r.Id,
+                r.Service.Name,
+                r.CustomerId,
+                r.Customer.FullName,
+                r.Provider.UserId,
+                r.Provider.User.FullName,
+                r.ScheduledDate))
+            .FirstAsync(cancellationToken);
 
     private async Task<PagedResult<OrderSummaryDto>> ListAsync(
         IQueryable<ServiceRequest> query, OrderStatusGroup group, int page, bool viewerIsCustomer, CancellationToken cancellationToken)
