@@ -1,0 +1,112 @@
+@model UsersPageViewModel
+@{
+    ViewData["Title"] = "المستخدمون";
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
+}
+
+<div class="dash-header">
+    <div>
+        <h1>المستخدمون</h1>
+        <p>ابحث عن الحسابات وأوقف أو فعّل أي حساب. الإيقاف يُنهي جلسات المستخدم خلال دقيقة.</p>
+    </div>
+</div>
+
+<form method="get" class="admin-filters" role="search">
+    <div class="input-icon flex-grow-1">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input name="q" value="@Model.Query" class="form-control form-control-sm" placeholder="اسم، بريد إلكتروني، رقم هاتف..." aria-label="بحث" />
+    </div>
+    <select name="role" class="form-select form-select-sm" aria-label="الدور">
+        <option value="">كل الأدوار</option>
+        @foreach (var role in Roles.All)
+        {
+            <option value="@role" selected="@(Model.Role == role)">@role.ToRoleDisplayName()</option>
+        }
+    </select>
+    <select name="status" class="form-select form-select-sm" aria-label="الحالة">
+        <option value="">كل الحالات</option>
+        <option value="Active" selected="@(Model.Status == UserStatusFilter.Active)">فعّال</option>
+        <option value="Inactive" selected="@(Model.Status == UserStatusFilter.Inactive)">موقوف</option>
+    </select>
+    <button type="submit" class="btn btn-sm btn-primary"><span class="btn-label">تصفية</span></button>
+</form>
+
+@if (Model.Users.Items.Count > 0)
+{
+    <p class="text-secondary small mb-2">النتائج: @Model.Users.TotalCount.ToString("N0")</p>
+    <div class="admin-table-wrap">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>المستخدم</th>
+                    <th>الهاتف</th>
+                    <th>الدور</th>
+                    <th>آخر دخول</th>
+                    <th>الحالة</th>
+                    <th class="text-end">الإجراء</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model.Users.Items)
+                {
+                    var isAdmin = u.Roles.Contains(Roles.Admin);
+                    <tr class="@(u.IsActive ? null : "is-muted")">
+                        <td>
+                            <div class="cell-user">
+                                @if (!string.IsNullOrEmpty(u.ProfileImagePath))
+                                {
+                                    <img class="avatar" src="@u.ProfileImagePath" alt="" style="--avatar-size: 36px" />
+                                }
+                                else
+                                {
+                                    <span class="avatar" style="--avatar-size: 36px" aria-hidden="true">@u.FullName.ToInitials()</span>
+                                }
+                                <div class="min-w-0">
+                                    <strong>@u.FullName</strong>
+                                    <small dir="ltr" class="text-start">@u.Email</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td><small dir="ltr">@(u.PhoneNumber ?? "—")</small></td>
+                        <td>
+                            @foreach (var role in u.Roles)
+                            {
+                                <span class="tag @(role == Roles.Admin ? "tag-accent" : "tag-primary")">@role.ToRoleDisplayName()</span>
+                            }
+                        </td>
+                        <td><small class="text-secondary">@(u.LastLoginAt?.ToRelativeTime() ?? "لم يسجل الدخول")</small></td>
+                        <td>
+                            <span class="verify-badge @(u.IsActive ? "is-approved" : "is-suspended")">@(u.IsActive ? "فعّال" : "موقوف")</span>
+                        </td>
+                        <td class="text-end">
+                            @if (!isAdmin && u.Id != Model.CurrentUserId)
+                            {
+                                <form asp-action="SetActive" asp-route-id="@u.Id" method="post">
+                                    <input type="hidden" name="isActive" value="@((!u.IsActive).ToString().ToLowerInvariant())" />
+                                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                                    @if (u.IsActive)
+                                    {
+                                        <button type="submit" class="btn btn-sm btn-ghost text-danger" data-no-loading
+                                                data-confirm="إيقاف حساب «@u.FullName»؟ لن يتمكن من تسجيل الدخول، وسيُخفى ملفه إن كان مقدم خدمة.">
+                                            <i class="fa-solid fa-user-slash" aria-hidden="true"></i>إيقاف
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit" class="btn btn-sm btn-soft"><i class="fa-solid fa-user-check" aria-hidden="true"></i><span class="btn-label">تفعيل</span></button>
+                                    }
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <partial name="_Pagination" model="Model.Pagination" />
+}
+else
+{
+    <partial name="_EmptyState" model='new EmptyStateViewModel { Icon = "fa-solid fa-users", Title = "لا يوجد مستخدمون مطابقون", Message = "جرّب تغيير معايير البحث." }' />
+}

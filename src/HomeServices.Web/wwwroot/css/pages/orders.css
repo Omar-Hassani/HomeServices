@@ -2,30 +2,6 @@
    HomeServices — Orders (طلب الخدمة، قوائم الطلبات، تفاصيل الطلب)
    ========================================================================== */
 
-/* ---------- شارة الحالة ---------- */
-.status-badge {
-    --badge-color: var(--hs-muted);
-    --badge-bg: var(--hs-surface-2);
-    display: inline-flex;
-    align-items: center;
-    gap: .4rem;
-    padding: .28rem .75rem;
-    border-radius: var(--hs-radius-pill);
-    background: var(--badge-bg);
-    color: var(--badge-color);
-    font-size: .8rem;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.status-badge i { font-size: .72rem; }
-.status-badge.is-pending { --badge-color: #9A6A0B; --badge-bg: var(--hs-warning-100); }
-.status-badge.is-accepted { --badge-color: var(--hs-info); --badge-bg: var(--hs-info-100); }
-.status-badge.is-progress { --badge-color: var(--hs-primary); --badge-bg: var(--hs-primary-50); }
-.status-badge.is-completed { --badge-color: #146C4A; --badge-bg: var(--hs-success-100); }
-.status-badge.is-rejected { --badge-color: #9B2C2C; --badge-bg: var(--hs-danger-100); }
-.status-badge.is-cancelled { --badge-color: var(--hs-muted); --badge-bg: var(--hs-surface-2); }
-
 /* ---------- نموذج طلب الخدمة ---------- */
 .booking-step {
     background: var(--hs-surface);

@@ -4,6 +4,7 @@
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+
     // ظل الهيدر عند التمرير
     const header = document.getElementById('site-header');
     if (header) {

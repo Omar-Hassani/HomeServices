@@ -1,0 +1,127 @@
+@model CategoryEditViewModel
+@{
+    ViewData["Title"] = Model.IsNew ? "فئة جديدة" : $"تعديل فئة {Model.Form.Name}";
+}
+
+<div class="dash-header">
+    <div>
+        <a class="back-link" asp-action="Index"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>كل الفئات</a>
+        <h1>@(Model.IsNew ? "فئة جديدة" : Model.Form.Name)</h1>
+    </div>
+    @if (!Model.IsNew)
+    {
+        <a class="btn btn-soft" asp-area="" asp-controller="Categories" asp-action="Details" asp-route-slug="@Model.Form.Slug" target="_blank">
+            <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>عرض في الموقع
+        </a>
+    }
+</div>
+
+<div class="row g-4">
+    <div class="col-xxl-7">
+        <div class="panel">
+            <div class="panel-header"><h2>بيانات الفئة</h2></div>
+            <form asp-action="Save" method="post" novalidate>
+                <input asp-for="Form.Id" type="hidden" />
+                <div asp-validation-summary="ModelOnly" class="form-alert" role="alert"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="Form.Name" class="form-label"></label>
+                        <input asp-for="Form.Name" class="form-control" />
+                        <span asp-validation-for="Form.Name" class="field-validation-error"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Form.Slug" class="form-label"></label>
+                        <input asp-for="Form.Slug" class="form-control" dir="ltr" placeholder="home-cleaning" />
+                        <span asp-validation-for="Form.Slug" class="field-validation-error"></span>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Form.Description" class="form-label"></label>
+                        <textarea asp-for="Form.Description" class="form-control" rows="2"></textarea>
+                        <span asp-validation-for="Form.Description" class="field-validation-error"></span>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Form.SearchKeywords" class="form-label"></label>
+                        <input asp-for="Form.SearchKeywords" class="form-control" placeholder="مثال: سباك سمكري تسريب مياه" />
+                        <small class="form-hint">كلمات يستخدمها الناس في البحث، مفصولة بمسافات. تساعد في ظهور الفئة عند البحث بكلمات عامية.</small>
+                        <span asp-validation-for="Form.SearchKeywords" class="field-validation-error"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Form.IconClass" class="form-label"></label>
+                        <div class="d-flex gap-2 align-items-center">
+                            <span class="icon-preview" style="--accent: @Model.Form.AccentColor"><i class="@Model.Form.IconClass" data-icon-preview aria-hidden="true"></i></span>
+                            <input asp-for="Form.IconClass" class="form-control" dir="ltr" data-icon-input />
+                        </div>
+                        <small class="form-hint">من مكتبة Font Awesome المجانية، مثل: fa-solid fa-bolt</small>
+                        <span asp-validation-for="Form.IconClass" class="field-validation-error"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="Form.AccentColor" class="form-label"></label>
+                        <input asp-for="Form.AccentColor" type="color" class="form-control form-control-color w-100" data-color-input />
+                        <span asp-validation-for="Form.AccentColor" class="field-validation-error"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="Form.DisplayOrder" class="form-label"></label>
+                        <input asp-for="Form.DisplayOrder" type="text" inputmode="numeric" min="0" max="999" class="form-control" />
+                        <span asp-validation-for="Form.DisplayOrder" class="field-validation-error"></span>
+                    </div>
+                </div>
+
+                <div class="form-check form-switch mt-3">
+                    <input asp-for="Form.IsActive" class="form-check-input" role="switch" />
+                    <label asp-for="Form.IsActive" class="form-check-label fw-semibold"></label>
+                </div>
+
+                <div class="panel-actions">
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check" aria-hidden="true"></i><span class="btn-label">@(Model.IsNew ? "إضافة الفئة" : "حفظ التغييرات")</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (!Model.IsNew)
+    {
+        <div class="col-xxl-5">
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>خدمات الفئة (@Model.Services.Count)</h2>
+                    <p>عدّل أي خدمة مباشرة من صفها، أو أضف خدمة جديدة في الأسفل.</p>
+                </div>
+
+                <div class="service-admin-list">
+                    @foreach (var s in Model.Services)
+                    {
+                        <form asp-action="SaveService" method="post" class="service-admin-row @(s.IsActive ? null : "is-inactive")">
+                            <input type="hidden" name="ServiceId" value="@s.Id" />
+                            <input type="hidden" name="CategoryId" value="@s.CategoryId" />
+                            <input name="Name" value="@s.Name" class="form-control form-control-sm" aria-label="اسم الخدمة" required maxlength="100" />
+                            <input name="Slug" value="@s.Slug" class="form-control form-control-sm" dir="ltr" aria-label="المعرّف" required maxlength="100" />
+                            <input name="DisplayOrder" value="@s.DisplayOrder" type="text" inputmode="numeric" min="0" max="999" class="form-control form-control-sm order-input" aria-label="الترتيب" />
+                            <label class="form-check form-switch m-0" title="فعّالة">
+                                <input type="checkbox" name="IsActive" value="true" class="form-check-input" checked="@s.IsActive" aria-label="فعّالة" />
+                            </label>
+                            <button type="submit" class="icon-btn" title="حفظ" aria-label="حفظ @s.Name" data-no-loading><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i></button>
+                            <small class="service-admin-meta">مقدمو الخدمة الموثّقون: @s.ProvidersCount</small>
+                        </form>
+                    }
+                </div>
+
+                <form asp-action="SaveService" method="post" class="service-admin-new">
+                    <input type="hidden" name="CategoryId" value="@Model.Form.Id" />
+                    <h3>إضافة خدمة</h3>
+                    <div class="row g-2">
+                        <div class="col-sm-6"><input name="Name" class="form-control form-control-sm" placeholder="اسم الخدمة" required maxlength="100" aria-label="اسم الخدمة" /></div>
+                        <div class="col-sm-4"><input name="Slug" class="form-control form-control-sm" dir="ltr" placeholder="service-slug" required maxlength="100" aria-label="المعرّف" /></div>
+                        <div class="col-sm-2"><input name="DisplayOrder" type="text" inputmode="numeric" min="0" max="999" value="@(Model.Services.Count + 1)" class="form-control form-control-sm" aria-label="الترتيب" /></div>
+                    </div>
+                    <input type="hidden" name="IsActive" value="true" />
+                    <button type="submit" class="btn btn-sm btn-primary mt-2"><i class="fa-solid fa-plus" aria-hidden="true"></i><span class="btn-label">إضافة</span></button>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,102 @@
+@using HomeServices.Application.Interfaces
+@model AdminOrderDetailsDto
+@{
+    var o = Model.Order;
+    ViewData["Title"] = $"طلب {o.OrderNumber}";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/orders.css" asp-append-version="true" />
+}
+
+<div class="order-header">
+    <a class="back-link" asp-action="Index"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>كل الطلبات</a>
+    <div class="order-header-main">
+        <div>
+            <h1>@o.ServiceName</h1>
+            <p>طلب رقم <span dir="ltr" class="fw-semibold">@o.OrderNumber</span> · أُرسل في @o.CreatedAt.ToSyriaDateTime()</p>
+        </div>
+        <order-status value="@o.Status" />
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="panel mb-4">
+            <div class="panel-header"><h2>تفاصيل الطلب</h2></div>
+            <dl class="order-facts">
+                <div><dt><i class="fa-solid fa-toolbox" aria-hidden="true"></i>الخدمة</dt><dd>@o.ServiceName <small>(@o.CategoryName)</small></dd></div>
+                <div><dt><i class="fa-regular fa-calendar" aria-hidden="true"></i>الموعد</dt><dd>@o.ScheduledDate.ToString("dddd d MMMM yyyy") · @o.TimeSlot.GetDisplayName()</dd></div>
+                <div><dt><i class="fa-solid fa-location-dot" aria-hidden="true"></i>المنطقة</dt><dd>@o.AreaName، @o.CityName</dd></div>
+                <div><dt><i class="fa-solid fa-map-pin" aria-hidden="true"></i>العنوان التفصيلي</dt><dd>@o.AddressDetails</dd></div>
+                <div><dt><i class="fa-solid fa-tags" aria-hidden="true"></i>السعر</dt><dd>@(o.AgreedPrice?.ToPrice() ?? "—")</dd></div>
+                @if (!string.IsNullOrWhiteSpace(o.CancellationReason))
+                {
+                    <div><dt><i class="fa-solid fa-circle-info" aria-hidden="true"></i>سبب الرفض/الإلغاء</dt><dd>@o.CancellationReason</dd></div>
+                }
+            </dl>
+            <div class="order-description">
+                <h3>وصف المطلوب</h3>
+                <p>@o.Description</p>
+            </div>
+        </div>
+
+        @if (o.Review is not null)
+        {
+            <div class="panel mb-4">
+                <div class="panel-header d-flex justify-content-between align-items-center">
+                    <h2>تقييم العميل</h2>
+                    <a asp-controller="Reviews" asp-action="Index" class="small">إدارة التقييمات</a>
+                </div>
+                <div class="given-review"><star-rating value="@o.Review.Rating" /><strong>@o.Review.Rating من 5</strong>
+                    @if (o.Review.IsHidden) { <span class="verify-badge is-suspended">مخفي</span> }
+                </div>
+                @if (!string.IsNullOrWhiteSpace(o.Review.Comment))
+                {
+                    <p class="mt-3 mb-0">@o.Review.Comment</p>
+                }
+            </div>
+        }
+
+        <div class="panel">
+            <div class="panel-header"><h2>سجل الطلب</h2></div>
+            <ol class="timeline">
+                @foreach (var item in o.History.Reverse())
+                {
+                    <li class="timeline-item">
+                        <span class="timeline-dot"></span>
+                        <div>
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <order-status value="@item.ToStatus" />
+                                <small class="text-secondary">@item.ChangedAt.ToSyriaDateTime()</small>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(item.ChangedByName))
+                            {
+                                <small class="d-block mt-1 text-secondary">بواسطة @item.ChangedByName</small>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(item.Note))
+                            {
+                                <p class="timeline-note">@item.Note</p>
+                            }
+                        </div>
+                    </li>
+                }
+            </ol>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="panel mb-4">
+            <h2 class="aside-title">العميل</h2>
+            <strong class="d-block">@Model.CustomerName</strong>
+            <small class="d-block" dir="ltr">@Model.CustomerEmail</small>
+            <small class="d-block" dir="ltr">@(Model.CustomerPhone ?? "—")</small>
+        </div>
+        <div class="panel">
+            <h2 class="aside-title">مقدم الخدمة</h2>
+            <strong class="d-block">@Model.ProviderName</strong>
+            <small class="d-block" dir="ltr">@(Model.ProviderPhone ?? "—")</small>
+            <a class="btn btn-soft btn-sm mt-3" asp-area="" asp-controller="Providers" asp-action="Details" asp-route-id="@o.ProviderProfileId" target="_blank">عرض الملف</a>
+        </div>
+    </div>
+</div>

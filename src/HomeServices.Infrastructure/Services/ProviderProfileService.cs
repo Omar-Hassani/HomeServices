@@ -1,4 +1,5 @@
 using HomeServices.Application.Common;
+using HomeServices.Application.Constants;
 using HomeServices.Application.DTOs.Files;
 using HomeServices.Application.DTOs.ProviderManagement;
 using HomeServices.Application.Interfaces;
@@ -9,9 +10,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomeServices.Infrastructure.Services;
 
-internal sealed class ProviderProfileService(ApplicationDbContext db, IFileStorageService fileStorage) : IProviderProfileService
+internal sealed class ProviderProfileService(
+    ApplicationDbContext db,
+    IFileStorageService fileStorage,
+    INotificationService notifications) : IProviderProfileService
 {
-    private const int MinBioLength = 30;
     private const string ProfileNotFound = "لم يتم العثور على ملف مقدم الخدمة.";
 
     public async Task<ProviderDashboardDto?> GetDashboardAsync(string userId, CancellationToken cancellationToken = default)
@@ -62,7 +65,7 @@ internal sealed class ProviderProfileService(ApplicationDbContext db, IFileStora
             PortfolioCount = data.PortfolioCount,
             PendingOrdersCount = data.PendingOrdersCount,
             ActiveOrdersCount = data.ActiveOrdersCount,
-            Checklist = BuildChecklist(data.Headline, data.Bio, data.CityId, data.ServicesCount, data.AreasCount,
+            Checklist = ProfileChecklist.Build(data.Headline, data.Bio, data.CityId, data.ServicesCount, data.AreasCount,
                 data.ProfileImagePath, data.PortfolioCount)
         };
     }
@@ -141,6 +144,15 @@ internal sealed class ProviderProfileService(ApplicationDbContext db, IFileStora
         var profile = await FindProfileAsync(userId, cancellationToken);
         profile!.VerificationStatus = VerificationStatus.Pending;
         await db.SaveChangesAsync(cancellationToken);
+
+        await notifications.NotifyRoleAsync(
+            Roles.Admin,
+            NotificationType.ProviderVerification,
+            "ملف أُعيد إرساله للمراجعة",
+            $"عدّل {dashboard.FullName} ملفه بعد الرفض وأعاد إرساله للمراجعة.",
+            "/Admin/Providers?status=Pending",
+            cancellationToken);
+
         return Result.Success();
     }
 
@@ -342,16 +354,4 @@ internal sealed class ProviderProfileService(ApplicationDbContext db, IFileStora
 
     private Task<ProviderProfile?> FindProfileAsync(string userId, CancellationToken cancellationToken) =>
         db.ProviderProfiles.FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
-
-    private static List<ProfileChecklistItem> BuildChecklist(
-        string headline, string? bio, int? cityId, int servicesCount, int areasCount, string? profileImagePath, int portfolioCount) =>
-    [
-        new("headline", "العنوان المهني", !string.IsNullOrWhiteSpace(headline), IsRequired: true),
-        new("bio", $"نبذة تعريفية ({MinBioLength} حرفاً على الأقل)", (bio?.Trim().Length ?? 0) >= MinBioLength, IsRequired: true),
-        new("city", "المدينة الرئيسية", cityId.HasValue, IsRequired: true),
-        new("services", "خدمة واحدة على الأقل مع السعر", servicesCount > 0, IsRequired: true),
-        new("areas", "منطقة عمل واحدة على الأقل", areasCount > 0, IsRequired: true),
-        new("photo", "صورة شخصية واضحة", !string.IsNullOrEmpty(profileImagePath), IsRequired: false),
-        new("portfolio", "صور من أعمالك السابقة", portfolioCount > 0, IsRequired: false)
-    ];
 }

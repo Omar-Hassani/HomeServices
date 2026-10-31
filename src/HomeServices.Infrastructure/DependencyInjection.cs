@@ -4,6 +4,7 @@ using HomeServices.Infrastructure.Data;
 using HomeServices.Infrastructure.Data.Seed;
 using HomeServices.Infrastructure.Identity;
 using HomeServices.Infrastructure.Services;
+using HomeServices.Infrastructure.Services.Admin;
 using HomeServices.Infrastructure.Storage;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -58,11 +59,23 @@ public static class DependencyInjection
 
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IProviderProfileService, ProviderProfileService>();
-        services.AddScoped<IOrderService, OrderService>();
+        // OrderService يُسجَّل كنوع ملموس أيضاً لأن AdminOrderService يستخدم دالته الداخلية لتفاصيل المدير
+        services.AddScoped<OrderService>();
+        services.AddScoped<IOrderService>(sp => sp.GetRequiredService<OrderService>());
         services.AddScoped<IReviewService, ReviewService>();
 
         // قنوات إضافية مستقبلاً: services.AddScoped<INotificationChannel, EmailNotificationChannel>();
         services.AddScoped<INotificationService, NotificationService>();
+
+        services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+        services.AddScoped<IProviderVerificationService, ProviderVerificationService>();
+        services.AddScoped<IUserAdminService, UserAdminService>();
+        services.AddScoped<IAdminOrderService, AdminOrderService>();
+        services.AddScoped<IReviewModerationService, ReviewModerationService>();
+        services.AddScoped<ICatalogAdminService, CatalogAdminService>();
+
+        // التحقق من SecurityStamp كل دقيقة: الحساب الموقوف يخرج من جلساته خلال دقيقة على الأكثر
+        services.Configure<SecurityStampValidatorOptions>(options => options.ValidationInterval = TimeSpan.FromMinutes(1));
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<ILocationService, LocationService>();
         services.AddScoped<IProviderDirectoryService, ProviderDirectoryService>();

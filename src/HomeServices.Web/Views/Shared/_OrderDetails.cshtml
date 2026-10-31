@@ -250,7 +250,7 @@ else
                                     <form action="@Model.ActionUrl" method="post" asp-antiforgery="true" class="action-form">
                                         <input type="hidden" name="Action" value="@action" />
                                         <label class="form-label small" for="accept-price">السعر المتفق عليه (اختياري)</label>
-                                        <input id="accept-price" name="Price" type="number" min="1" step="500" class="form-control form-control-sm mb-2"
+                                        <input id="accept-price" name="Price" type="text" inputmode="numeric" min="1" step="500" class="form-control form-control-sm mb-2"
                                                placeholder="@(o.AgreedPrice?.ToString("0") ?? "السعر بالليرة السورية")" />
                                         <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-check" aria-hidden="true"></i><span class="btn-label">قبول الطلب</span></button>
                                     </form>
@@ -267,7 +267,7 @@ else
                                     <form action="@Model.ActionUrl" method="post" asp-antiforgery="true" class="action-form">
                                         <input type="hidden" name="Action" value="@action" />
                                         <label class="form-label small" for="final-price">السعر النهائي (اختياري)</label>
-                                        <input id="final-price" name="Price" type="number" min="1" step="500" class="form-control form-control-sm mb-2"
+                                        <input id="final-price" name="Price" type="text" inputmode="numeric" min="1" step="500" class="form-control form-control-sm mb-2"
                                                placeholder="@(o.AgreedPrice?.ToString("0") ?? "السعر بالليرة السورية")" />
                                         <button type="submit" class="btn btn-accent w-100"><i class="fa-solid fa-flag-checkered" aria-hidden="true"></i><span class="btn-label">إتمام الطلب</span></button>
                                     </form>

@@ -1,0 +1,22 @@
+@model int
+@{
+    var controller = ViewContext.RouteData.Values["controller"] as string;
+    string? Active(string name) => string.Equals(controller, name, StringComparison.OrdinalIgnoreCase) ? "active" : null;
+}
+<nav class="dash-nav" aria-label="لوحة الإدارة">
+    <div class="dash-nav-title"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>لوحة الإدارة</div>
+    <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="@Active("Dashboard")"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i>نظرة عامة</a>
+    <a asp-area="Admin" asp-controller="Providers" asp-action="Index" class="@Active("Providers")">
+        <i class="fa-solid fa-user-check" aria-hidden="true"></i>مقدمو الخدمات
+        @if (Model > 0)
+        {
+            <span class="nav-badge" aria-label="بانتظار المراجعة">@Model</span>
+        }
+    </a>
+    <a asp-area="Admin" asp-controller="Users" asp-action="Index" class="@Active("Users")"><i class="fa-solid fa-users" aria-hidden="true"></i>المستخدمون</a>
+    <a asp-area="Admin" asp-controller="Orders" asp-action="Index" class="@Active("Orders")"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>الطلبات</a>
+    <a asp-area="Admin" asp-controller="Reviews" asp-action="Index" class="@Active("Reviews")"><i class="fa-regular fa-star" aria-hidden="true"></i>التقييمات</a>
+    <div class="dash-nav-divider"></div>
+    <a asp-area="Admin" asp-controller="Catalog" asp-action="Index" class="@Active("Catalog")"><i class="fa-solid fa-layer-group" aria-hidden="true"></i>الفئات والخدمات</a>
+    <a asp-area="Admin" asp-controller="Locations" asp-action="Index" class="@Active("Locations")"><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>المحافظات والمناطق</a>
+</nav>

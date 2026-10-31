@@ -1,0 +1,74 @@
+@model ReviewModerationPageViewModel
+@{
+    ViewData["Title"] = "التقييمات";
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
+}
+
+<div class="dash-header">
+    <div>
+        <h1>التقييمات</h1>
+        <p>أخفِ التقييمات المسيئة أو المخالفة. الإخفاء يزيل التقييم من الملف العام ويُعاد حساب متوسط التقييم تلقائياً.</p>
+    </div>
+</div>
+
+<form method="get" class="admin-filters">
+    <select name="visibility" class="form-select form-select-sm" aria-label="الظهور">
+        <option value="">كل التقييمات</option>
+        <option value="Visible" selected="@(Model.Visibility == ReviewVisibilityFilter.Visible)">الظاهرة</option>
+        <option value="Hidden" selected="@(Model.Visibility == ReviewVisibilityFilter.Hidden)">المخفية</option>
+    </select>
+    <select name="rating" class="form-select form-select-sm" aria-label="عدد النجوم">
+        <option value="">كل النجوم</option>
+        @for (byte stars = 5; stars >= 1; stars--)
+        {
+            <option value="@stars" selected="@(Model.Rating == stars)">@stars نجوم</option>
+        }
+    </select>
+    <button type="submit" class="btn btn-sm btn-primary"><span class="btn-label">تصفية</span></button>
+</form>
+
+@if (Model.Reviews.Items.Count > 0)
+{
+    <div class="review-moderation-list">
+        @foreach (var r in Model.Reviews.Items)
+        {
+            <article class="moderation-card @(r.IsHidden ? "is-hidden" : null)">
+                <div class="moderation-head">
+                    <star-rating value="@r.Rating" />
+                    <strong>@r.CustomerName</strong>
+                    <span class="text-secondary small">قيّم</span>
+                    <a asp-area="" asp-controller="Providers" asp-action="Details" asp-route-id="@r.ProviderId" target="_blank">@r.ProviderName</a>
+                    @if (r.IsHidden)
+                    {
+                        <span class="verify-badge is-suspended">مخفي</span>
+                    }
+                    <small class="text-secondary ms-auto">@r.CreatedAt.ToRelativeTime()</small>
+                </div>
+                <p class="moderation-comment">@(string.IsNullOrWhiteSpace(r.Comment) ? "(بدون تعليق)" : r.Comment)</p>
+                <div class="moderation-foot">
+                    <a class="small" asp-controller="Orders" asp-action="Details" asp-route-id="@r.OrderId">@r.ServiceName · <span dir="ltr">@r.OrderNumber</span></a>
+                    <form asp-action="SetHidden" asp-route-id="@r.Id" method="post">
+                        <input type="hidden" name="isHidden" value="@((!r.IsHidden).ToString().ToLowerInvariant())" />
+                        <input type="hidden" name="returnUrl" value="@returnUrl" />
+                        @if (r.IsHidden)
+                        {
+                            <button type="submit" class="btn btn-sm btn-soft"><i class="fa-solid fa-eye" aria-hidden="true"></i><span class="btn-label">إظهار</span></button>
+                        }
+                        else
+                        {
+                            <button type="submit" class="btn btn-sm btn-ghost text-danger" data-no-loading data-confirm="إخفاء هذا التقييم من ملف مقدم الخدمة؟ سيُعاد حساب متوسط تقييمه.">
+                                <i class="fa-solid fa-eye-slash" aria-hidden="true"></i>إخفاء
+                            </button>
+                        }
+                    </form>
+                </div>
+            </article>
+        }
+    </div>
+
+    <partial name="_Pagination" model="Model.Pagination" />
+}
+else
+{
+    <partial name="_EmptyState" model='new EmptyStateViewModel { Icon = "fa-regular fa-star", Title = "لا توجد تقييمات مطابقة" }' />
+}

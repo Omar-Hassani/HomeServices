@@ -1,0 +1,110 @@
+@model AdminStatsDto
+@{
+    ViewData["Title"] = "لوحة الإدارة";
+    var maxStatus = Math.Max(1, Model.OrdersByStatus.Values.DefaultIfEmpty(0).Max());
+}
+
+<div class="dash-header">
+    <div>
+        <h1>نظرة عامة على المنصة</h1>
+        <p>أهم المؤشرات وما يحتاج متابعتك الآن.</p>
+    </div>
+</div>
+
+@if (Model.PendingProvidersCount > 0)
+{
+    <a class="orders-alert" asp-controller="Providers" asp-action="Index" asp-route-status="Pending">
+        <span class="orders-alert-icon"><i class="fa-solid fa-user-clock" aria-hidden="true"></i></span>
+        <span class="flex-grow-1">
+            <strong>ملفات بانتظار المراجعة: @Model.PendingProvidersCount</strong>
+            <small>راجعها ووثّق المكتملة منها ليبدأ أصحابها باستقبال الطلبات</small>
+        </span>
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+    </a>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xxl-3">
+        <div class="stat-card">
+            <span class="stat-card-icon"><i class="fa-solid fa-users" aria-hidden="true"></i></span>
+            <strong>@Model.UsersCount.ToString("N0")</strong>
+            <span>المستخدمون · منهم @Model.CustomersCount.ToString("N0") عميل</span>
+            <small class="stat-delta">+@Model.NewUsersLast7Days خلال آخر 7 أيام</small>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xxl-3">
+        <div class="stat-card">
+            <span class="stat-card-icon is-success"><i class="fa-solid fa-user-check" aria-hidden="true"></i></span>
+            <strong>@Model.ApprovedProvidersCount.ToString("N0")</strong>
+            <span>مقدم خدمة موثّق من أصل @Model.ProvidersCount.ToString("N0")</span>
+            <small class="stat-delta">بانتظار المراجعة: @Model.PendingProvidersCount</small>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xxl-3">
+        <div class="stat-card">
+            <span class="stat-card-icon"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i></span>
+            <strong>@Model.OrdersCount.ToString("N0")</strong>
+            <span>إجمالي الطلبات</span>
+            <small class="stat-delta">+@Model.OrdersLast7Days خلال آخر 7 أيام</small>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xxl-3">
+        <div class="stat-card">
+            <span class="stat-card-icon is-accent"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+            <strong>@(Model.ReviewsCount > 0 ? Model.PlatformAverageRating.ToString("0.0") : "—")</strong>
+            <span>متوسط التقييم من @Model.ReviewsCount.ToString("N0") تقييم</span>
+            <small class="stat-delta">مخفية: @Model.HiddenReviewsCount</small>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-xl-7">
+        <div class="panel h-100">
+            <div class="panel-header">
+                <h2>الطلبات حسب الحالة</h2>
+                <p>توزيع كل الطلبات على مراحلها الحالية.</p>
+            </div>
+            @if (Model.OrdersCount > 0)
+            {
+                <ul class="status-breakdown">
+                    @foreach (var (status, count) in Model.OrdersByStatus)
+                    {
+                        <li>
+                            <a asp-controller="Orders" asp-action="Index" asp-route-status="@status" class="status-breakdown-label">
+                                <order-status value="@status" />
+                            </a>
+                            <span class="status-breakdown-bar" title="@status.GetDisplayName(): @count">
+                                @if (count > 0)
+                                {
+                                    <span class="fill status-@status.ToString().ToLowerInvariant()" style="width: @(Math.Max(2, count * 100 / maxStatus))%"></span>
+                                }
+                            </span>
+                            <span class="status-breakdown-count">@count.ToString("N0")</span>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-secondary mb-0">لا توجد طلبات بعد.</p>
+            }
+        </div>
+    </div>
+    <div class="col-xl-5">
+        <div class="panel h-100">
+            <div class="panel-header">
+                <h2>اختصارات</h2>
+                <p>المهام الإدارية الأكثر استخداماً.</p>
+            </div>
+            <div class="quick-links">
+                <a asp-controller="Providers" asp-action="Index" asp-route-status="Pending"><i class="fa-solid fa-user-clock" aria-hidden="true"></i>مراجعة الملفات</a>
+                <a asp-controller="Reviews" asp-action="Index" asp-route-rating="1"><i class="fa-solid fa-flag" aria-hidden="true"></i>التقييمات المنخفضة</a>
+                <a asp-controller="Users" asp-action="Index" asp-route-status="Inactive"><i class="fa-solid fa-user-slash" aria-hidden="true"></i>الحسابات الموقوفة</a>
+                <a asp-controller="Catalog" asp-action="Create"><i class="fa-solid fa-plus" aria-hidden="true"></i>إضافة فئة خدمات</a>
+                <a asp-controller="Locations" asp-action="Index"><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>إدارة المناطق</a>
+                <a asp-area="" asp-controller="Home" asp-action="Index" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>زيارة الموقع</a>
+            </div>
+        </div>
+    </div>
+</div>

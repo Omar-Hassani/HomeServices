@@ -191,11 +191,22 @@ internal sealed class OrderService(
     public Task<OrderCountsDto> GetProviderCountsAsync(string providerUserId, CancellationToken cancellationToken = default) =>
         CountAsync(db.ServiceRequests.Where(r => r.Provider.UserId == providerUserId), cancellationToken);
 
-    public async Task<OrderDetailsDto?> GetDetailsAsync(int orderId, string userId, CancellationToken cancellationToken = default)
+    public Task<OrderDetailsDto?> GetDetailsAsync(int orderId, string userId, CancellationToken cancellationToken = default) =>
+        LoadDetailsAsync(orderId, userId, cancellationToken);
+
+    /// <summary>
+    /// تفاصيل الطلب للمدير: كل البيانات ظاهرة ولا توجد إجراءات (قراءة فقط).
+    /// </summary>
+    internal Task<OrderDetailsDto?> GetDetailsForAdminAsync(int orderId, CancellationToken cancellationToken) =>
+        LoadDetailsAsync(orderId, viewerUserId: null, cancellationToken);
+
+    /// <param name="viewerUserId">أحد طرفي الطلب، أو null للمدير.</param>
+    private async Task<OrderDetailsDto?> LoadDetailsAsync(int orderId, string? viewerUserId, CancellationToken cancellationToken)
     {
+        var userId = viewerUserId;
         var data = await db.ServiceRequests
             .AsNoTracking()
-            .Where(r => r.Id == orderId && (r.CustomerId == userId || r.Provider.UserId == userId))
+            .Where(r => r.Id == orderId && (userId == null || r.CustomerId == userId || r.Provider.UserId == userId))
             .Select(r => new
             {
                 r.Id,
@@ -244,8 +255,9 @@ internal sealed class OrderService(
             .Select(r => new OrderReviewDto(r.Rating, r.Comment, r.CreatedAt, r.IsHidden))
             .FirstOrDefaultAsync(cancellationToken);
 
-        var isCustomer = data.CustomerId == userId;
-        var contactVisible = ContactVisibleStatuses.Contains(data.Status);
+        var isAdmin = userId is null;
+        var isCustomer = !isAdmin && data.CustomerId == userId;
+        var contactVisible = isAdmin || ContactVisibleStatuses.Contains(data.Status);
 
         return new OrderDetailsDto
         {
@@ -272,7 +284,7 @@ internal sealed class OrderService(
             CreatedAt = data.CreatedAt,
             CompletedAt = data.CompletedAt,
             History = history,
-            AvailableActions = ServiceRequestWorkflow.AvailableActions(data.Status, isCustomer),
+            AvailableActions = isAdmin ? [] : ServiceRequestWorkflow.AvailableActions(data.Status, isCustomer),
             Review = review
         };
     }

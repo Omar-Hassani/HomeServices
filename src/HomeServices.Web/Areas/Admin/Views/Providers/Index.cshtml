@@ -1,0 +1,133 @@
+@model ProvidersPageViewModel
+@{
+    ViewData["Title"] = "مقدمو الخدمات";
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
+    var tabs = new (VerificationStatus? Status, string Label)[]
+    {
+        (null, "الكل"), (VerificationStatus.Pending, "قيد المراجعة"), (VerificationStatus.Approved, "موثّق"),
+        (VerificationStatus.Rejected, "مرفوض"), (VerificationStatus.Suspended, "موقوف")
+    };
+}
+
+<div class="dash-header">
+    <div>
+        <h1>مقدمو الخدمات</h1>
+        <p>راجع الملفات ووثّقها، أو ارفضها وأوقفها مع ملاحظة توضيحية.</p>
+    </div>
+</div>
+
+<div class="admin-toolbar">
+    <nav class="admin-tabs" aria-label="حالة التوثيق">
+        @foreach (var tab in tabs)
+        {
+            <a asp-action="Index" asp-route-status="@tab.Status" asp-route-q="@Model.Query" class="@(Model.Status == tab.Status ? "active" : null)">@tab.Label</a>
+        }
+    </nav>
+    <form method="get" class="admin-search" role="search">
+        <input type="hidden" name="status" value="@Model.Status" />
+        <div class="input-icon">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <input name="q" value="@Model.Query" class="form-control form-control-sm" placeholder="اسم، بريد، هاتف..." aria-label="بحث" />
+        </div>
+    </form>
+</div>
+
+@if (Model.Providers.Items.Count > 0)
+{
+    <div class="admin-table-wrap">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>مقدم الخدمة</th>
+                    <th>التواصل</th>
+                    <th>اكتمال الملف</th>
+                    <th>الحالة</th>
+                    <th>الأداء</th>
+                    <th class="text-end">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model.Providers.Items)
+                {
+                    <tr>
+                        <td>
+                            <div class="cell-user">
+                                @if (!string.IsNullOrEmpty(p.ProfileImagePath))
+                                {
+                                    <img class="avatar" src="@p.ProfileImagePath" alt="" style="--avatar-size: 38px" />
+                                }
+                                else
+                                {
+                                    <span class="avatar" style="--avatar-size: 38px" aria-hidden="true">@p.FullName.ToInitials()</span>
+                                }
+                                <div class="min-w-0">
+                                    <strong>@p.FullName</strong>
+                                    <small>@(string.IsNullOrWhiteSpace(p.Headline) ? "لم يحدد عنواناً مهنياً" : p.Headline)</small>
+                                    <small>@(p.CityName ?? "بدون مدينة") · سُجّل @p.CreatedAt.ToRelativeTime()</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <small class="d-block" dir="ltr">@p.Email</small>
+                            <small class="d-block text-secondary" dir="ltr">@p.PhoneNumber</small>
+                        </td>
+                        <td>
+                            <div class="mini-progress" role="progressbar" aria-valuenow="@p.CompletionPercent" aria-valuemin="0" aria-valuemax="100">
+                                <span style="width: @(p.CompletionPercent)%"></span>
+                            </div>
+                            <small class="d-block fw-semibold" dir="ltr" style="text-align: right">@(p.CompletionPercent)%</small>
+                            <small class="d-block text-secondary">الخدمات: @p.ServicesCount · المناطق: @p.AreasCount</small>
+                        </td>
+                        <td>
+                            <span class="verify-badge is-@p.Status.ToString().ToLowerInvariant()">@p.Status.GetDisplayName()</span>
+                            @if (!p.UserIsActive)
+                            {
+                                <span class="verify-badge is-suspended mt-1">الحساب موقوف</span>
+                            }
+                        </td>
+                        <td>
+                            <small class="d-block"><i class="fa-solid fa-star text-warning" aria-hidden="true"></i> @p.AverageRating.ToRatingText()</small>
+                            <small class="d-block text-secondary">@p.CompletedOrdersCount طلب مكتمل</small>
+                        </td>
+                        <td class="text-end">
+                            <div class="row-actions">
+                                <a class="icon-btn" asp-area="" asp-controller="Providers" asp-action="Details" asp-route-id="@p.Id" target="_blank" title="معاينة الملف" aria-label="معاينة ملف @p.FullName">
+                                    <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                                </a>
+                                @if (p.Status != VerificationStatus.Approved)
+                                {
+                                    <form asp-action="Approve" asp-route-id="@p.Id" method="post">
+                                        <input type="hidden" name="returnUrl" value="@returnUrl" />
+                                        <button type="submit" class="btn btn-sm btn-primary">
+                                            <i class="fa-solid fa-check" aria-hidden="true"></i><span class="btn-label">@(p.Status == VerificationStatus.Suspended ? "إعادة تفعيل" : "توثيق")</span>
+                                        </button>
+                                    </form>
+                                }
+                                @if (p.Status == VerificationStatus.Pending)
+                                {
+                                    <button type="button" class="btn btn-sm btn-ghost text-danger" data-note-action="@Url.Action("Reject", new { id = p.Id })"
+                                            data-note-title="رفض ملف @p.FullName" data-note-subtitle="سيصل لمقدم الخدمة إشعار بالرفض مع ملاحظتك، ويمكنه التعديل وإعادة الإرسال." data-note-button="رفض الملف">
+                                        رفض
+                                    </button>
+                                }
+                                @if (p.Status == VerificationStatus.Approved)
+                                {
+                                    <button type="button" class="btn btn-sm btn-ghost text-danger" data-note-action="@Url.Action("Suspend", new { id = p.Id })"
+                                            data-note-title="إيقاف ملف @p.FullName" data-note-subtitle="سيختفي الملف من نتائج البحث فوراً ويصل لمقدم الخدمة إشعار بالسبب." data-note-button="إيقاف الملف">
+                                        إيقاف
+                                    </button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <partial name="_Pagination" model="Model.Pagination" />
+}
+else
+{
+    <partial name="_EmptyState" model='new EmptyStateViewModel { Icon = "fa-solid fa-user-check", Title = "لا توجد ملفات مطابقة", Message = "جرّب تبويباً آخر أو كلمة بحث مختلفة." }' />
+}

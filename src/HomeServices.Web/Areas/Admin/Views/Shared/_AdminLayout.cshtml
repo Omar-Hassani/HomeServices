@@ -1,0 +1,48 @@
+@{
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/pages/admin.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+}
+
+<section class="dash-shell">
+    <div class="container-fluid admin-container">
+        <div class="row g-4">
+            <div class="col-lg-3 col-xl-2">
+                @await Component.InvokeAsync("AdminNav")
+            </div>
+            <div class="col-lg-9 col-xl-10">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- نافذة قرار يتطلب ملاحظة (رفض/إيقاف ملف) -->
+<div class="modal fade" id="noteModal" tabindex="-1" aria-labelledby="noteModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content confirm-modal" method="post" data-note-form>
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
+            <div class="modal-body">
+                <h2 class="h5 mb-1" id="noteModalTitle" data-note-title></h2>
+                <p class="text-secondary small mb-3" data-note-subtitle></p>
+                <label for="note-text" class="form-label">ملاحظة لمقدم الخدمة</label>
+                <textarea id="note-text" name="note" class="form-control" rows="4" maxlength="500" required minlength="5"
+                          placeholder="اشرح السبب بوضوح ليتمكن مقدم الخدمة من التصحيح"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">إلغاء</button>
+                <button type="submit" class="btn btn-danger" data-note-submit>تأكيد</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/admin.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+}

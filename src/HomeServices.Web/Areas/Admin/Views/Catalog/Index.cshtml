@@ -1,0 +1,33 @@
+@model IReadOnlyList<AdminCategoryDto>
+@{
+    ViewData["Title"] = "الفئات والخدمات";
+}
+
+<div class="dash-header">
+    <div>
+        <h1>الفئات والخدمات</h1>
+        <p>الفئات المعطّلة وخدماتها لا تظهر في الموقع، لكن الطلبات السابقة المرتبطة بها تبقى محفوظة.</p>
+    </div>
+    <a class="btn btn-primary" asp-action="Create"><i class="fa-solid fa-plus" aria-hidden="true"></i>فئة جديدة</a>
+</div>
+
+<div class="row g-3">
+    @foreach (var c in Model)
+    {
+        <div class="col-md-6 col-xxl-4">
+            <a class="catalog-card @(c.IsActive ? null : "is-inactive")" asp-action="Edit" asp-route-id="@c.Id" style="--accent: @c.AccentColor">
+                <span class="category-icon"><i class="@c.IconClass" aria-hidden="true"></i></span>
+                <span class="flex-grow-1 min-w-0">
+                    <strong>@c.Name</strong>
+                    <small dir="ltr" class="d-block text-start">/@c.Slug</small>
+                    <small class="d-block">@c.Services.Count(s => s.IsActive) خدمات فعّالة من @c.Services.Count · ترتيب @c.DisplayOrder</small>
+                </span>
+                @if (!c.IsActive)
+                {
+                    <span class="verify-badge is-suspended">معطّلة</span>
+                }
+                <i class="fa-solid fa-pen text-secondary" aria-hidden="true"></i>
+            </a>
+        </div>
+    }
+</div>

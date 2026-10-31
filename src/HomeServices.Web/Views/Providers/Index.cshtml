@@ -98,10 +98,10 @@
                                     <h3 class="filter-title"><i class="fa-solid fa-tags" aria-hidden="true"></i>السعر (ل.س)</h3>
                                     <div class="price-range">
                                         <label for="minPrice" class="visually-hidden">أقل سعر</label>
-                                        <input id="minPrice" name="minPrice" type="number" min="0" step="500" inputmode="numeric" class="form-control" placeholder="من" value="@criteria.MinPrice?.ToString("0")" />
+                                        <input id="minPrice" name="minPrice" type="text" inputmode="numeric" min="0" step="500" inputmode="numeric" class="form-control" placeholder="من" value="@criteria.MinPrice?.ToString("0")" />
                                         <span aria-hidden="true">—</span>
                                         <label for="maxPrice" class="visually-hidden">أعلى سعر</label>
-                                        <input id="maxPrice" name="maxPrice" type="number" min="0" step="500" inputmode="numeric" class="form-control" placeholder="إلى" value="@criteria.MaxPrice?.ToString("0")" />
+                                        <input id="maxPrice" name="maxPrice" type="text" inputmode="numeric" min="0" step="500" inputmode="numeric" class="form-control" placeholder="إلى" value="@criteria.MaxPrice?.ToString("0")" />
                                     </div>
                                 </div>
 

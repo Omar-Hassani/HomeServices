@@ -53,7 +53,7 @@
                 <label asp-for="YearsOfExperience" class="form-label"></label>
                 <div class="input-icon">
                     <i class="fa-solid fa-briefcase" aria-hidden="true"></i>
-                    <input asp-for="YearsOfExperience" type="number" min="0" max="60" class="form-control" />
+                    <input asp-for="YearsOfExperience" type="text" inputmode="numeric" min="0" max="60" class="form-control" />
                 </div>
                 <span asp-validation-for="YearsOfExperience" class="field-validation-error"></span>
             </div>

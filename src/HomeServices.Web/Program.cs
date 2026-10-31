@@ -5,7 +5,9 @@ using Microsoft.Extensions.WebEncoders;
 using HomeServices.Infrastructure;
 using HomeServices.Infrastructure.Data;
 using Microsoft.AspNetCore.Localization;
+using HomeServices.Web.Validation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.DataAnnotations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,8 @@ builder.Services.AddControllersWithViews(options =>
     messages.SetNonPropertyValueMustBeANumberAccessor(() => "يجب أن تكون القيمة رقماً.");
     messages.SetUnknownValueIsInvalidAccessor(field => $"القيمة المدخلة للحقل {field} غير صالحة.");
 });
+
+builder.Services.AddSingleton<IValidationAttributeAdapterProvider, ArabicValidationAttributeAdapterProvider>();
 
 // إخراج النصوص العربية كما هي بدل ترميزها ككيانات &#x...; (يبقى ترميز الرموز الخطرة كما هو)
 builder.Services.Configure<WebEncoderOptions>(options =>

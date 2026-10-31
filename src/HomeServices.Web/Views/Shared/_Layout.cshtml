@@ -72,6 +72,10 @@
                                 <small class="text-secondary" dir="ltr">@currentUser.Email</small>
                             </li>
                             <li><hr class="dropdown-divider" /></li>
+                            @if (User.IsInRole(Roles.Admin))
+                            {
+                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index"><i class="fa-solid fa-shield-halved"></i>لوحة الإدارة</a></li>
+                            }
                             @if (User.IsInRole(Roles.Customer))
                             {
                                 <li><a class="dropdown-item" asp-area="Customer" asp-controller="Orders" asp-action="Index"><i class="fa-solid fa-clipboard-list"></i>طلباتي</a></li>

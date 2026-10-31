@@ -1,5 +1,6 @@
 using HomeServices.Application.Common;
 using HomeServices.Application.DTOs.Notifications;
+using HomeServices.Domain.Enums;
 
 namespace HomeServices.Application.Interfaces;
 
@@ -9,6 +10,11 @@ public interface INotificationService
     /// يحفظ الإشعار ثم يمرّره لقنوات الإرسال الإضافية. لا يرمي استثناءات: فشل الإشعار لا يُفشل العملية الأصلية.
     /// </summary>
     Task NotifyAsync(NotificationMessage message, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// يرسل نفس الإشعار لكل المستخدمين الفعّالين في دور معيّن (مثل كل المديرين).
+    /// </summary>
+    Task NotifyRoleAsync(string role, NotificationType type, string title, string message, string? link, CancellationToken cancellationToken = default);
 
     Task<int> GetUnreadCountAsync(string userId, CancellationToken cancellationToken = default);
 

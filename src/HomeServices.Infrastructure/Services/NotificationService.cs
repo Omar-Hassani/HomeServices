@@ -2,6 +2,7 @@ using HomeServices.Application.Common;
 using HomeServices.Application.DTOs.Notifications;
 using HomeServices.Application.Interfaces;
 using HomeServices.Domain.Entities;
+using HomeServices.Domain.Enums;
 using HomeServices.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -55,6 +56,30 @@ internal sealed class NotificationService(
             {
                 logger.LogError(ex, "Notification channel {Channel} failed for user {UserId}", channel.GetType().Name, message.UserId);
             }
+        }
+    }
+
+    public async Task NotifyRoleAsync(string role, NotificationType type, string title, string message, string? link, CancellationToken cancellationToken = default)
+    {
+        List<string> userIds;
+        try
+        {
+            userIds = await (
+                from userRole in db.UserRoles
+                join r in db.Roles on userRole.RoleId equals r.Id
+                join u in db.Users on userRole.UserId equals u.Id
+                where r.Name == role && u.IsActive
+                select u.Id).ToListAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to resolve users in role {Role} for notification", role);
+            return;
+        }
+
+        foreach (var userId in userIds)
+        {
+            await NotifyAsync(new NotificationMessage(userId, type, title, message, link), cancellationToken);
         }
     }
 
