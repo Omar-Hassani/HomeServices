@@ -1,0 +1,17 @@
+@{
+    var current = ViewContext.RouteData.Values["action"] as string;
+    string? IsActive(string action) => string.Equals(current, action, StringComparison.OrdinalIgnoreCase) ? "active" : null;
+}
+<nav class="account-nav" aria-label="إعدادات الحساب">
+    <a asp-controller="Account" asp-action="Profile" class="@IsActive("Profile")" aria-current="@(IsActive("Profile") is null ? null : "page")">
+        <i class="fa-regular fa-id-card" aria-hidden="true"></i>البيانات الشخصية
+    </a>
+    <a asp-controller="Account" asp-action="ChangePassword" class="@IsActive("ChangePassword")" aria-current="@(IsActive("ChangePassword") is null ? null : "page")">
+        <i class="fa-solid fa-key" aria-hidden="true"></i>كلمة المرور
+    </a>
+    <form asp-controller="Account" asp-action="Logout" method="post">
+        <button type="submit" class="text-danger" data-no-loading>
+            <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>تسجيل الخروج
+        </button>
+    </form>
+</nav>

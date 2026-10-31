@@ -1,0 +1,133 @@
+/* ==========================================================================
+   HomeServices — Account Pages (الحساب الشخصي)
+   ========================================================================== */
+
+.account-shell {
+    padding-block: clamp(2rem, 4vw, 3.5rem);
+}
+
+.account-hero {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(120deg, var(--hs-primary-50), var(--hs-surface) 70%);
+    border: 1px solid var(--hs-line);
+    border-radius: var(--hs-radius-lg);
+}
+
+.account-hero h1 {
+    font-size: 1.5rem;
+    margin-bottom: .4rem;
+}
+
+.account-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+}
+
+.account-nav {
+    position: sticky;
+    top: calc(var(--hs-header-height) + 1rem);
+    display: grid;
+    gap: .25rem;
+    padding: .5rem;
+    background: var(--hs-surface);
+    border: 1px solid var(--hs-line);
+    border-radius: var(--hs-radius-lg);
+}
+
+.account-nav a,
+.account-nav button {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    width: 100%;
+    padding: .75rem 1rem;
+    border: 0;
+    border-radius: var(--hs-radius-sm);
+    background: transparent;
+    color: var(--hs-body);
+    font-weight: 500;
+    text-align: start;
+    transition: background-color var(--hs-duration) var(--hs-ease), color var(--hs-duration) var(--hs-ease);
+}
+
+.account-nav a i,
+.account-nav button i {
+    width: 18px;
+    text-align: center;
+}
+
+.account-nav a:hover,
+.account-nav button:hover {
+    background: var(--hs-surface-2);
+    color: var(--hs-ink);
+}
+
+.account-nav a.active {
+    background: var(--hs-primary-50);
+    color: var(--hs-primary);
+    font-weight: 600;
+}
+
+.account-nav form {
+    border-top: 1px solid var(--hs-line);
+    margin-top: .25rem;
+    padding-top: .25rem;
+}
+
+.account-nav button.text-danger:hover {
+    background: var(--hs-danger-100);
+    color: var(--hs-danger) !important;
+}
+
+.panel {
+    background: var(--hs-surface);
+    border: 1px solid var(--hs-line);
+    border-radius: var(--hs-radius-lg);
+    padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.panel-header {
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--hs-line);
+}
+
+.panel-header h2 {
+    font-size: 1.2rem;
+    margin-bottom: .25rem;
+}
+
+.panel-header p {
+    color: var(--hs-muted);
+    font-size: .9rem;
+    margin: 0;
+}
+
+.panel-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: .5rem;
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--hs-line);
+}
+
+@media (max-width: 991.98px) {
+    .account-nav {
+        position: static;
+        grid-auto-flow: column;
+        grid-auto-columns: max-content;
+        overflow-x: auto;
+    }
+
+    .account-nav form {
+        border-top: 0;
+        margin-top: 0;
+        padding-top: 0;
+    }
+}

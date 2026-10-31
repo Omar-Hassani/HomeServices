@@ -1,0 +1,21 @@
+@model AuthAsideViewModel
+<aside class="auth-aside" aria-hidden="true">
+    <div class="auth-aside-icons">
+        <span style="--i: 0"><i class="fa-solid fa-bolt"></i></span>
+        <span style="--i: 1"><i class="fa-solid fa-faucet-drip"></i></span>
+        <span style="--i: 2"><i class="fa-solid fa-paint-roller"></i></span>
+        <span style="--i: 3"><i class="fa-solid fa-snowflake"></i></span>
+        <span style="--i: 4"><i class="fa-solid fa-truck-moving"></i></span>
+        <span style="--i: 5"><i class="fa-solid fa-broom"></i></span>
+    </div>
+    <div class="auth-aside-content">
+        <h2>@Model.Title</h2>
+        <p>@Model.Subtitle</p>
+        <ul class="auth-points">
+            @foreach (var point in Model.Points)
+            {
+                <li><span><i class="@point.Icon"></i></span>@point.Text</li>
+            }
+        </ul>
+    </div>
+</aside>

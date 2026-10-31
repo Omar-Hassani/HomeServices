@@ -14,6 +14,19 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+
+    var messages = options.ModelBindingMessageProvider;
+    messages.SetValueIsInvalidAccessor(value => $"القيمة '{value}' غير صالحة.");
+    messages.SetValueMustBeANumberAccessor(field => $"يجب أن يكون الحقل {field} رقماً.");
+    messages.SetValueMustNotBeNullAccessor(field => $"الحقل {field} مطلوب.");
+    messages.SetAttemptedValueIsInvalidAccessor((value, field) => $"القيمة '{value}' غير صالحة للحقل {field}.");
+    messages.SetMissingBindRequiredValueAccessor(field => $"لم يتم إدخال قيمة للحقل {field}.");
+    messages.SetMissingKeyOrValueAccessor(() => "القيمة مطلوبة.");
+    messages.SetMissingRequestBodyRequiredValueAccessor(() => "محتوى الطلب مطلوب.");
+    messages.SetNonPropertyAttemptedValueIsInvalidAccessor(value => $"القيمة '{value}' غير صالحة.");
+    messages.SetNonPropertyUnknownValueIsInvalidAccessor(() => "القيمة المدخلة غير صالحة.");
+    messages.SetNonPropertyValueMustBeANumberAccessor(() => "يجب أن تكون القيمة رقماً.");
+    messages.SetUnknownValueIsInvalidAccessor(field => $"القيمة المدخلة للحقل {field} غير صالحة.");
 });
 
 // إخراج النصوص العربية كما هي بدل ترميزها ككيانات &#x...; (يبقى ترميز الرموز الخطرة كما هو)

@@ -718,6 +718,162 @@
     margin-bottom: 1rem;
 }
 
+/* ---------- عناصر النماذج ---------- */
+.input-icon {
+    position: relative;
+}
+
+.input-icon > i {
+    position: absolute;
+    top: 50%;
+    inset-inline-start: 1rem;
+    transform: translateY(-50%);
+    color: var(--hs-subtle);
+    pointer-events: none;
+    transition: color var(--hs-duration) var(--hs-ease);
+}
+
+.input-icon:focus-within > i {
+    color: var(--hs-primary);
+}
+
+.input-icon .form-control,
+.input-icon .form-select {
+    padding-inline-start: 2.75rem;
+}
+
+/* الحقول ذات الاتجاه LTR (بريد، هاتف، كلمة مرور) تبقى محاذية لليمين مع العربية */
+.input-icon .form-control[dir="ltr"] {
+    text-align: right;
+}
+
+.input-icon .form-control[dir="ltr"]:not(:placeholder-shown) {
+    text-align: left;
+}
+
+.password-field .form-control {
+    padding-inline-end: 3rem;
+}
+
+/* حقول LTR داخل صفحة RTL: الأيقونة يميناً وزر الإظهار يساراً، لذا نستخدم حشوات فيزيائية */
+.input-icon .form-control[dir="ltr"] {
+    padding-right: 2.75rem;
+    padding-left: 1rem;
+}
+
+.input-icon.password-field .form-control[dir="ltr"] {
+    padding-left: 3rem;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    inset-inline-end: .5rem;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--hs-muted);
+    display: grid;
+    place-items: center;
+    transition: background-color var(--hs-duration) var(--hs-ease), color var(--hs-duration) var(--hs-ease);
+}
+
+.password-toggle:hover {
+    background: var(--hs-surface-2);
+    color: var(--hs-ink);
+}
+
+.password-meter {
+    margin-top: .6rem;
+}
+
+.password-meter-bar {
+    height: 6px;
+    border-radius: var(--hs-radius-pill);
+    background: var(--hs-surface-2);
+    overflow: hidden;
+}
+
+.password-meter-bar span {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: var(--hs-danger);
+    transition: width var(--hs-duration-slow) var(--hs-ease), background-color var(--hs-duration) var(--hs-ease);
+}
+
+.password-meter[data-level="1"] .password-meter-bar span { width: 25%; background: var(--hs-danger); }
+.password-meter[data-level="2"] .password-meter-bar span { width: 50%; background: var(--hs-warning); }
+.password-meter[data-level="3"] .password-meter-bar span { width: 75%; background: var(--hs-primary-400); }
+.password-meter[data-level="4"] .password-meter-bar span { width: 100%; background: var(--hs-success); }
+
+.password-meter-label,
+.form-hint {
+    display: block;
+    margin-top: .35rem;
+    font-size: .8rem;
+    color: var(--hs-muted);
+}
+
+.form-alert {
+    display: flex;
+    gap: .75rem;
+    padding: .9rem 1rem;
+    margin-bottom: 1.25rem;
+    border-radius: var(--hs-radius);
+    background: var(--hs-danger-100);
+    border: 1px solid color-mix(in srgb, var(--hs-danger) 25%, transparent);
+    color: #9B2C2C;
+    font-size: .9rem;
+    font-weight: 500;
+}
+
+.form-alert::before {
+    content: "\f06a";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    color: var(--hs-danger);
+    line-height: 1.75;
+}
+
+.form-alert ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: .2rem;
+}
+
+.form-alert.validation-summary-valid {
+    display: none;
+}
+
+.form-check-input {
+    width: 1.15em;
+    height: 1.15em;
+    border-color: var(--hs-line-strong);
+}
+
+.form-check-input:checked {
+    background-color: var(--hs-primary);
+    border-color: var(--hs-primary);
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 4px rgba(var(--hs-primary-rgb), .12);
+    border-color: var(--hs-primary-400);
+}
+
+.form-control:disabled,
+.form-control[readonly] {
+    background-color: var(--hs-surface-2);
+    color: var(--hs-muted);
+}
+
 /* ---------- صفحات المحتوى النصي ---------- */
 .prose-card {
     background: var(--hs-surface);

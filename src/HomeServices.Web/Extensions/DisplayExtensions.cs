@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Reflection;
+using HomeServices.Application.Constants;
 using HomeServices.Domain.Enums;
 
 namespace HomeServices.Web.Extensions;
@@ -22,6 +23,14 @@ public static class DisplayExtensions
     {
         PriceUnit.Fixed => amount.ToPrice(),
         _ => $"{amount.ToPrice()} {unit.GetDisplayName()}"
+    };
+
+    public static string ToRoleDisplayName(this string role) => role switch
+    {
+        Roles.Admin => "مدير المنصة",
+        Roles.Provider => "مقدم خدمة",
+        Roles.Customer => "عميل",
+        _ => role
     };
 
     public static string ToRatingText(this decimal rating) =>

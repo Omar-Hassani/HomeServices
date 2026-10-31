@@ -78,6 +78,41 @@
         });
     });
 
+    // إظهار/إخفاء كلمة المرور
+    document.querySelectorAll('[data-password-toggle]').forEach((toggle) => {
+        toggle.addEventListener('click', () => {
+            const input = toggle.parentElement.querySelector('input');
+            if (!input) return;
+            const show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            toggle.setAttribute('aria-label', show ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور');
+            const icon = toggle.querySelector('i');
+            icon?.classList.toggle('fa-eye', !show);
+            icon?.classList.toggle('fa-eye-slash', show);
+        });
+    });
+
+    // مؤشر قوة كلمة المرور
+    const strengthLabels = ['8 أحرف على الأقل، ورقم واحد على الأقل', 'ضعيفة', 'مقبولة', 'جيدة', 'قوية'];
+    document.querySelectorAll('[data-password-strength]').forEach((input) => {
+        const meter = document.querySelector(input.dataset.passwordStrength);
+        const label = meter?.querySelector('.password-meter-label');
+        if (!meter || !label) return;
+
+        input.addEventListener('input', () => {
+            const value = input.value;
+            let level = 0;
+            if (value.length > 0) {
+                level = 1;
+                if (value.length >= 8 && /\d/.test(value)) level = 2;
+                if (level === 2 && value.length >= 10 && /[a-z]/i.test(value)) level = 3;
+                if (level === 3 && /[A-Z]/.test(value) && /[^a-z0-9]/i.test(value)) level = 4;
+            }
+            meter.dataset.level = String(level);
+            label.textContent = strengthLabels[level];
+        });
+    });
+
     // حالة التحميل لأزرار الإرسال ومنع الإرسال المزدوج
     document.addEventListener('submit', (event) => {
         const form = event.target;

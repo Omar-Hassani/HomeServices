@@ -1,0 +1,128 @@
+@using HomeServices.Application.DTOs.Account
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "إنشاء حساب";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/auth.css" asp-append-version="true" />
+}
+
+<section class="auth-shell">
+    <div class="container">
+        <div class="auth-card">
+            <div class="auth-form-side">
+                <div class="auth-header">
+                    <h1>إنشاء حساب جديد</h1>
+                    <p>لديك حساب مسبقاً؟ <a asp-action="Login">سجّل الدخول</a></p>
+                </div>
+
+                <form asp-action="Register" method="post" class="register-form" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="form-alert" role="alert"></div>
+
+                    <fieldset class="mb-4">
+                        <legend class="form-label mb-2">نوع الحساب</legend>
+                        <div class="account-type-grid">
+                            <input asp-for="AccountType" type="radio" value="@AccountType.Customer" id="type-customer" class="btn-check" />
+                            <label class="account-type-card" for="type-customer">
+                                <span class="account-type-icon"><i class="fa-solid fa-house-user" aria-hidden="true"></i></span>
+                                <span>
+                                    <strong>أبحث عن خدمة</strong>
+                                    <small>اطلب خدمات لمنزلك وتابع طلباتك</small>
+                                </span>
+                                <i class="fa-solid fa-circle-check account-type-check" aria-hidden="true"></i>
+                            </label>
+
+                            <input asp-for="AccountType" type="radio" value="@AccountType.Provider" id="type-provider" class="btn-check" />
+                            <label class="account-type-card" for="type-provider">
+                                <span class="account-type-icon"><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i></span>
+                                <span>
+                                    <strong>أقدّم خدمات</strong>
+                                    <small>استقبل طلبات العملاء في منطقتك</small>
+                                </span>
+                                <i class="fa-solid fa-circle-check account-type-check" aria-hidden="true"></i>
+                            </label>
+                        </div>
+                        <div class="provider-note">
+                            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                            بعد التسجيل ستكمل ملفك الاحترافي (تخصصاتك، أسعارك ومناطق عملك)، ولن يظهر للعملاء إلا بعد مراجعته والموافقة عليه من إدارة المنصة.
+                        </div>
+                    </fieldset>
+
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label"></label>
+                        <div class="input-icon">
+                            <i class="fa-regular fa-user" aria-hidden="true"></i>
+                            <input asp-for="FullName" class="form-control" autocomplete="name" placeholder="مثال: أحمد الخطيب" />
+                        </div>
+                        <span asp-validation-for="FullName" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label"></label>
+                            <div class="input-icon">
+                                <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+                                <input asp-for="Email" class="form-control" dir="ltr" autocomplete="email" placeholder="name@example.com" />
+                            </div>
+                            <span asp-validation-for="Email" class="field-validation-error"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PhoneNumber" class="form-label"></label>
+                            <div class="input-icon">
+                                <i class="fa-solid fa-mobile-screen" aria-hidden="true"></i>
+                                <input asp-for="PhoneNumber" type="tel" class="form-control" dir="ltr" autocomplete="tel" inputmode="tel" placeholder="09XX XXX XXX" />
+                            </div>
+                            <span asp-validation-for="PhoneNumber" class="field-validation-error"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label"></label>
+                        <div class="input-icon password-field">
+                            <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                            <input asp-for="Password" class="form-control" dir="ltr" autocomplete="new-password" data-password-strength="#password-meter" />
+                            <button type="button" class="password-toggle" data-password-toggle aria-label="إظهار كلمة المرور"><i class="fa-regular fa-eye"></i></button>
+                        </div>
+                        <div class="password-meter" id="password-meter" aria-live="polite">
+                            <div class="password-meter-bar"><span></span></div>
+                            <small class="password-meter-label">8 أحرف على الأقل، ورقم واحد على الأقل</small>
+                        </div>
+                        <span asp-validation-for="Password" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="ConfirmPassword" class="form-label"></label>
+                        <div class="input-icon password-field">
+                            <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                            <input asp-for="ConfirmPassword" class="form-control" dir="ltr" autocomplete="new-password" />
+                            <button type="button" class="password-toggle" data-password-toggle aria-label="إظهار كلمة المرور"><i class="fa-regular fa-eye"></i></button>
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="field-validation-error"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <span class="btn-label">إنشاء الحساب</span>
+                    </button>
+
+                    <p class="auth-terms">
+                        بإنشاء الحساب فإنك توافق على <a asp-controller="Home" asp-action="Privacy" target="_blank">سياسة الخصوصية</a>.
+                    </p>
+                </form>
+            </div>
+
+            <partial name="_AuthAside" model='new AuthAsideViewModel {
+                Title = "انضم إلى مجتمع HomeServices",
+                Subtitle = "سواء كنت تبحث عن محترف لإنجاز عمل في بيتك، أو كنت محترفاً يبحث عن عملاء جدد، فالمنصة صُممت لك.",
+                Points = [
+                    ("fa-solid fa-user-shield", "مقدمو خدمات موثّقون من إدارة المنصة"),
+                    ("fa-solid fa-tags", "أسعار واضحة بالليرة السورية قبل الطلب"),
+                    ("fa-solid fa-star", "تقييمات حقيقية بعد كل خدمة مكتملة")
+                ] }' />
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

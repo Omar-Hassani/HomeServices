@@ -53,6 +53,7 @@ public static class DependencyInjection
 
         services.AddScoped<IdentitySeeder>();
 
+        services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<ILocationService, LocationService>();
         services.AddScoped<IProviderDirectoryService, ProviderDirectoryService>();

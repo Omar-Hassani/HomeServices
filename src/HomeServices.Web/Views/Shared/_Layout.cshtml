@@ -66,22 +66,17 @@
                             <span class="d-none d-sm-inline">@currentUser.FullName</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            @if (User.IsInRole(Roles.Admin))
-                            {
-                                <li><a class="dropdown-item" href="/Admin"><i class="fa-solid fa-gauge-high"></i>لوحة الإدارة</a></li>
-                            }
-                            @if (User.IsInRole(Roles.Provider))
-                            {
-                                <li><a class="dropdown-item" href="/Provider"><i class="fa-solid fa-briefcase"></i>لوحة مقدم الخدمة</a></li>
-                            }
-                            @if (User.IsInRole(Roles.Customer))
-                            {
-                                <li><a class="dropdown-item" href="/Customer"><i class="fa-solid fa-list-check"></i>طلباتي</a></li>
-                            }
+                            <li class="dropdown-header">
+                                <span class="d-block fw-semibold text-dark">@currentUser.FullName</span>
+                                <small class="text-secondary" dir="ltr">@currentUser.Email</small>
+                            </li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="fa-regular fa-id-card"></i>حسابي</a></li>
+                            <li><a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword"><i class="fa-solid fa-key"></i>كلمة المرور</a></li>
                             <li><hr class="dropdown-divider" /></li>
                             <li>
-                                <form method="post" action="/Account/Logout" asp-antiforgery="true">
-                                    <button type="submit" class="dropdown-item text-danger"><i class="fa-solid fa-arrow-right-from-bracket text-danger"></i>تسجيل الخروج</button>
+                                <form asp-controller="Account" asp-action="Logout" method="post">
+                                    <button type="submit" class="dropdown-item text-danger" data-no-loading><i class="fa-solid fa-arrow-right-from-bracket text-danger"></i>تسجيل الخروج</button>
                                 </form>
                             </li>
                         </ul>
@@ -89,8 +84,8 @@
                 }
                 else
                 {
-                    <a class="btn btn-ghost d-none d-md-inline-flex" href="/Account/Login">تسجيل الدخول</a>
-                    <a class="btn btn-primary d-none d-sm-inline-flex" href="/Account/Register?type=provider">
+                    <a class="btn btn-ghost d-none d-md-inline-flex" asp-controller="Account" asp-action="Login">تسجيل الدخول</a>
+                    <a class="btn btn-primary d-none d-sm-inline-flex" asp-controller="Account" asp-action="Register" asp-route-type="provider">
                         <i class="fa-solid fa-user-plus" aria-hidden="true"></i>انضم كمقدم خدمة
                     </a>
                 }
@@ -115,9 +110,13 @@
             @if (currentUser is null)
             {
                 <div class="mt-auto d-grid gap-2 pt-3">
-                    <a class="btn btn-soft justify-content-center" href="/Account/Login">تسجيل الدخول</a>
-                    <a class="btn btn-primary justify-content-center" href="/Account/Register?type=provider">انضم كمقدم خدمة</a>
+                    <a class="btn btn-soft justify-content-center" asp-controller="Account" asp-action="Login">تسجيل الدخول</a>
+                    <a class="btn btn-primary justify-content-center" asp-controller="Account" asp-action="Register" asp-route-type="provider">انضم كمقدم خدمة</a>
                 </div>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Profile"><i class="fa-regular fa-id-card"></i>حسابي</a>
             }
         </div>
     </div>
@@ -151,9 +150,9 @@
                 <div class="col-6 col-lg-2">
                     <h4>الحساب</h4>
                     <ul class="footer-links">
-                        <li><a href="/Account/Login">تسجيل الدخول</a></li>
-                        <li><a href="/Account/Register">حساب عميل جديد</a></li>
-                        <li><a href="/Account/Register?type=provider">انضم كمقدم خدمة</a></li>
+                        <li><a asp-controller="Account" asp-action="Login">تسجيل الدخول</a></li>
+                        <li><a asp-controller="Account" asp-action="Register">حساب عميل جديد</a></li>
+                        <li><a asp-controller="Account" asp-action="Register" asp-route-type="provider">انضم كمقدم خدمة</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-3">

@@ -1,0 +1,73 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "تسجيل الدخول";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/auth.css" asp-append-version="true" />
+}
+
+<section class="auth-shell">
+    <div class="container">
+        <div class="auth-card">
+            <div class="auth-form-side">
+                <div class="auth-header">
+                    <h1>أهلاً بعودتك</h1>
+                    <p>ليس لديك حساب؟ <a asp-action="Register">أنشئ حساباً جديداً</a></p>
+                </div>
+
+                <form asp-action="Login" method="post" novalidate>
+                    <input asp-for="ReturnUrl" type="hidden" />
+                    <div asp-validation-summary="ModelOnly" class="form-alert" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <div class="input-icon">
+                            <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+                            <input asp-for="Email" class="form-control" dir="ltr" autocomplete="username" placeholder="name@example.com" autofocus />
+                        </div>
+                        <span asp-validation-for="Email" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label"></label>
+                        <div class="input-icon password-field">
+                            <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                            <input asp-for="Password" class="form-control" dir="ltr" autocomplete="current-password" />
+                            <button type="button" class="password-toggle" data-password-toggle aria-label="إظهار كلمة المرور"><i class="fa-regular fa-eye"></i></button>
+                        </div>
+                        <span asp-validation-for="Password" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label"></label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <span class="btn-label">تسجيل الدخول</span>
+                    </button>
+                </form>
+
+                <div class="auth-divider"><span>أو</span></div>
+
+                <a class="btn btn-soft w-100" asp-action="Register" asp-route-type="provider">
+                    <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i>انضم كمقدم خدمة
+                </a>
+            </div>
+
+            <partial name="_AuthAside" model='new AuthAsideViewModel {
+                Title = "كل خدمات بيتك في مكان واحد",
+                Subtitle = "سجّل دخولك لطلب الخدمات ومتابعة طلباتك، أو لإدارة ملفك وطلباتك كمقدم خدمة.",
+                Points = [
+                    ("fa-solid fa-route", "تابع حالة طلباتك خطوة بخطوة"),
+                    ("fa-solid fa-bell", "إشعارات فورية عند كل تحديث"),
+                    ("fa-solid fa-star-half-stroke", "قيّم الخدمة بعد إتمامها")
+                ] }' />
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

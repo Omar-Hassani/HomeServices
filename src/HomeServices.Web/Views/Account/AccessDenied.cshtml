@@ -1,0 +1,24 @@
+@{
+    ViewData["Title"] = "لا تملك صلاحية الوصول";
+}
+
+<section class="status-page">
+    <div class="container" style="max-width: 560px">
+        <div class="empty-state-icon mb-4" style="width: 96px; height: 96px; font-size: 2.2rem">
+            <i class="fa-solid fa-lock" aria-hidden="true"></i>
+        </div>
+        <h1 class="h3 mb-3">لا تملك صلاحية الوصول لهذه الصفحة</h1>
+        <p class="text-secondary mb-4">هذه الصفحة مخصصة لنوع آخر من الحسابات. إن كنت تعتقد أن هذا خطأ، جرّب تسجيل الدخول بحساب مختلف.</p>
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+            <a class="btn btn-primary" asp-controller="Home" asp-action="Index">
+                <i class="fa-solid fa-house" aria-hidden="true"></i>العودة للرئيسية
+            </a>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <form asp-action="Logout" method="post">
+                    <button type="submit" class="btn btn-soft" data-no-loading>تسجيل الدخول بحساب آخر</button>
+                </form>
+            }
+        </div>
+    </div>
+</section>

@@ -1,0 +1,88 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "حسابي";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/account.css" asp-append-version="true" />
+}
+
+<section class="account-shell">
+    <div class="container">
+        <div class="account-hero">
+            @if (!string.IsNullOrEmpty(Model.ProfileImagePath))
+            {
+                <img class="avatar" src="@Model.ProfileImagePath" alt="" style="--avatar-size: 72px" />
+            }
+            else
+            {
+                <span class="avatar" style="--avatar-size: 72px" aria-hidden="true">@Model.FullName.ToInitials()</span>
+            }
+            <div>
+                <h1>@Model.FullName</h1>
+                <div class="account-meta">
+                    @foreach (var role in Model.Roles)
+                    {
+                        <span class="tag tag-primary"><i class="fa-solid fa-user-tag" aria-hidden="true"></i>@role.ToRoleDisplayName()</span>
+                    }
+                    <span class="tag"><i class="fa-regular fa-calendar" aria-hidden="true"></i>عضو منذ @Model.CreatedAt.ToLocalTime().ToString("MMMM yyyy")</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <partial name="_AccountNav" />
+            </div>
+            <div class="col-lg-9">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2>البيانات الشخصية</h2>
+                        <p>هذه البيانات تظهر لمقدم الخدمة عند إرسال طلب، لتسهيل التواصل معك.</p>
+                    </div>
+
+                    <form asp-action="Profile" method="post" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="form-alert" role="alert"></div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="FullName" class="form-label"></label>
+                                <div class="input-icon">
+                                    <i class="fa-regular fa-user" aria-hidden="true"></i>
+                                    <input asp-for="FullName" class="form-control" autocomplete="name" />
+                                </div>
+                                <span asp-validation-for="FullName" class="field-validation-error"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="PhoneNumber" class="form-label"></label>
+                                <div class="input-icon">
+                                    <i class="fa-solid fa-mobile-screen" aria-hidden="true"></i>
+                                    <input asp-for="PhoneNumber" type="tel" class="form-control" dir="ltr" autocomplete="tel" inputmode="tel" />
+                                </div>
+                                <span asp-validation-for="PhoneNumber" class="field-validation-error"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email-readonly" class="form-label">البريد الإلكتروني</label>
+                                <div class="input-icon">
+                                    <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+                                    <input id="email-readonly" value="@Model.Email" class="form-control" dir="ltr" readonly disabled />
+                                </div>
+                                <small class="form-hint">لا يمكن تغيير البريد الإلكتروني حالياً.</small>
+                            </div>
+                        </div>
+
+                        <div class="panel-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa-solid fa-check" aria-hidden="true"></i><span class="btn-label">حفظ التغييرات</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
