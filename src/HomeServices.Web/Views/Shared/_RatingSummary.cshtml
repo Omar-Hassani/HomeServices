@@ -1,0 +1,18 @@
+@model RatingSummaryViewModel
+<div class="rating-summary">
+    <div class="rating-big">
+        <strong>@Model.AverageRating.ToRatingText()</strong>
+        <star-rating value="@Model.AverageRating" />
+        <span class="rating-caption">@Model.ReviewsCount.ToReviewsCountText()</span>
+    </div>
+    <div class="rating-bars">
+        @for (var stars = 5; stars >= 1; stars--)
+        {
+            <div class="rating-bar-row">
+                <span>@stars <i class="fa-solid fa-star" aria-hidden="true"></i></span>
+                <div class="rating-bar" role="img" aria-label="@stars نجوم: @Model.Breakdown[stars - 1]"><span style="width: @(Model.Percentage(stars))%"></span></div>
+                <span class="count">@Model.Breakdown[stars - 1]</span>
+            </div>
+        }
+    </div>
+</div>

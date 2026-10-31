@@ -13,7 +13,8 @@ namespace HomeServices.Web.Controllers;
 public class ProvidersController(
     IProviderDirectoryService providerDirectory,
     ICategoryService categoryService,
-    ILocationService locationService) : Controller
+    ILocationService locationService,
+    IReviewService reviewService) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Index(ProviderSearchQuery query, CancellationToken cancellationToken)
@@ -67,6 +68,27 @@ public class ProvidersController(
         }
 
         return View(new ProviderDetailsViewModel { Provider = provider });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Reviews(int id, int page = 1, CancellationToken cancellationToken = default)
+    {
+        var reviews = await reviewService.GetPublicReviewsAsync(id, page, cancellationToken);
+        if (reviews is null)
+        {
+            return NotFound();
+        }
+
+        return View(new ReviewsPageViewModel
+        {
+            Reviews = reviews,
+            Pagination = new PaginationViewModel
+            {
+                Page = reviews.Reviews.Page,
+                TotalPages = reviews.Reviews.TotalPages,
+                PageUrl = p => Url.Action(nameof(Reviews), new { id, page = p > 1 ? p : (int?)null })!
+            }
+        });
     }
 
     private static string BuildHeading(ProviderSearchQuery query, IReadOnlyList<CategoryDetailsDto> catalog, IReadOnlyList<CityDto> cities)

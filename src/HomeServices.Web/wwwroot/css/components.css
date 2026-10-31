@@ -972,6 +972,149 @@
     border-top: 1px solid var(--hs-line);
 }
 
+/* ---------- رابط الرجوع ---------- */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    font-size: .88rem;
+    font-weight: 500;
+    color: var(--hs-muted);
+    margin-bottom: .75rem;
+}
+
+.back-link:hover {
+    color: var(--hs-primary);
+}
+
+/* ---------- ملخص التقييمات وقائمة المراجعات ---------- */
+.rating-caption {
+    font-size: .85rem;
+    color: var(--hs-muted);
+}
+
+.rating-summary {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 1.5rem;
+    align-items: center;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--hs-line);
+}
+
+.rating-big {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .3rem;
+    text-align: center;
+}
+
+.rating-big strong {
+    font-family: var(--hs-font-heading);
+    font-size: 3rem;
+    line-height: 1;
+    color: var(--hs-ink);
+}
+
+.rating-bars {
+    display: grid;
+    gap: .45rem;
+}
+
+.rating-bar-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 32px;
+    align-items: center;
+    gap: .75rem;
+    font-size: .85rem;
+}
+
+.rating-bar-row i {
+    color: var(--hs-accent);
+    font-size: .7rem;
+}
+
+.rating-bar {
+    height: 8px;
+    border-radius: var(--hs-radius-pill);
+    background: var(--hs-surface-2);
+    overflow: hidden;
+}
+
+.rating-bar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--hs-accent);
+}
+
+.rating-bar-row .count {
+    color: var(--hs-muted);
+    text-align: end;
+}
+
+.review-list {
+    display: grid;
+    gap: 1.25rem;
+}
+
+.review-item + .review-item {
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--hs-line);
+}
+
+.review-head {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+
+.review-head > div {
+    flex: 1;
+    min-width: 0;
+}
+
+.review-head strong {
+    display: block;
+    color: var(--hs-ink);
+}
+
+.review-head small {
+    color: var(--hs-muted);
+    font-size: .8rem;
+}
+
+.review-item p {
+    margin: .75rem 0 0;
+}
+
+.reviews-empty {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    border-radius: var(--hs-radius);
+    background: var(--hs-bg);
+    border: 1px dashed var(--hs-line-strong);
+}
+
+.reviews-empty i {
+    font-size: 1.6rem;
+    color: var(--hs-primary-400);
+}
+
+.reviews-empty strong {
+    display: block;
+    color: var(--hs-ink);
+}
+
+.reviews-empty span {
+    font-size: .9rem;
+    color: var(--hs-muted);
+}
+
 /* ---------- عناصر النماذج ---------- */
 .input-icon {
     position: relative;

@@ -59,7 +59,11 @@ public sealed record OrderSummaryDto(
     TimeSlot TimeSlot,
     OrderStatus Status,
     decimal? AgreedPrice,
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    bool HasReview)
+{
+    public bool AwaitingReview => Status == OrderStatus.Completed && !HasReview;
+}
 
 public sealed record OrderCountsDto(int Active, int Completed, int Closed, int Pending)
 {
@@ -112,7 +116,16 @@ public sealed record OrderDetailsDto
     public IReadOnlyList<OrderHistoryItemDto> History { get; init; } = [];
     public IReadOnlyList<OrderAction> AvailableActions { get; init; } = [];
 
+    /// <summary>
+    /// تقييم العميل لهذا الطلب إن وُجد.
+    /// </summary>
+    public OrderReviewDto? Review { get; init; }
+
     public bool ContactDetailsVisible => CounterpartPhone is not null;
+
+    public bool CanReview => ViewerIsCustomer && Status == OrderStatus.Completed && Review is null;
 }
+
+public sealed record OrderReviewDto(byte Rating, string? Comment, DateTime CreatedAt, bool IsHidden);
 
 public sealed record OrderActionInput(OrderAction Action, string? Note, decimal? Price);

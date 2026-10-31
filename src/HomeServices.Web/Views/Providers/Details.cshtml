@@ -190,43 +190,12 @@
                     <h2><i class="fa-regular fa-star" aria-hidden="true"></i>تقييمات العملاء</h2>
                     @if (Model.TotalVisibleReviews > 0)
                     {
-                        <div class="rating-summary">
-                            <div class="rating-big">
-                                <strong>@p.AverageRating.ToRatingText()</strong>
-                                <star-rating value="@p.AverageRating" />
-                                <span class="rating-caption">@p.ReviewsCount.ToReviewsCountText()</span>
-                            </div>
-                            <div class="rating-bars">
-                                @for (var stars = 5; stars >= 1; stars--)
-                                {
-                                    <div class="rating-bar-row">
-                                        <span>@stars <i class="fa-solid fa-star" aria-hidden="true"></i></span>
-                                        <div class="rating-bar"><span style="width: @(Model.RatingPercentage(stars))%"></span></div>
-                                        <span class="count">@p.RatingBreakdown[stars - 1]</span>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-
-                        <div class="review-list">
-                            @foreach (var review in p.RecentReviews)
-                            {
-                                <div class="review-item">
-                                    <div class="review-head">
-                                        <span class="avatar" style="--avatar-size: 40px" aria-hidden="true">@review.CustomerDisplayName.ToInitials()</span>
-                                        <div>
-                                            <strong>@review.CustomerDisplayName</strong>
-                                            <small>@review.ServiceName · @review.CreatedAt.ToLocalTime().ToString("d MMMM yyyy")</small>
-                                        </div>
-                                        <star-rating value="@review.Rating" />
-                                    </div>
-                                    @if (!string.IsNullOrWhiteSpace(review.Comment))
-                                    {
-                                        <p>@review.Comment</p>
-                                    }
-                                </div>
-                            }
-                        </div>
+                        <partial name="_RatingSummary" model='new RatingSummaryViewModel { AverageRating = p.AverageRating, ReviewsCount = p.ReviewsCount, Breakdown = p.RatingBreakdown }' />
+                        <partial name="_ReviewList" model="p.RecentReviews" />
+                        @if (Model.TotalVisibleReviews > p.RecentReviews.Count)
+                        {
+                            <a class="btn btn-soft w-100 mt-4" asp-action="Reviews" asp-route-id="@p.Id">عرض كل التقييمات (@Model.TotalVisibleReviews)</a>
+                        }
                     }
                     else
                     {

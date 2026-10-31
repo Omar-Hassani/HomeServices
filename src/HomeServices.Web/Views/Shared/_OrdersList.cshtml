@@ -51,6 +51,10 @@
                 </div>
                 <div class="order-side">
                     <order-status value="@order.Status" />
+                    @if (order.AwaitingReview && !Model.IsProviderView)
+                    {
+                        <span class="review-chip"><i class="fa-solid fa-star" aria-hidden="true"></i>بانتظار تقييمك</span>
+                    }
                     @if (order.AgreedPrice is decimal price)
                     {
                         <span class="order-price">@price.ToPrice()</span>

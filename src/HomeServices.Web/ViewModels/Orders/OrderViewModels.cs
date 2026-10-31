@@ -57,7 +57,18 @@ public class OrderPageViewModel
     public required OrderDetailsDto Order { get; init; }
     public required string ActionUrl { get; init; }
     public required string BackUrl { get; init; }
+
+    /// <summary>
+    /// رابط إرسال التقييم (متاح في منطقة العميل فقط).
+    /// </summary>
+    public string? ReviewUrl { get; init; }
     public bool IsNew { get; init; }
+}
+
+public class ReviewForm
+{
+    public byte Rating { get; set; }
+    public string? Comment { get; set; }
 }
 
 public class OrderActionForm

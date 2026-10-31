@@ -13,7 +13,4 @@ public class ProviderDetailsViewModel
         Provider.Services.GroupBy(s => s.CategoryName);
 
     public int TotalVisibleReviews => Provider.RatingBreakdown.Sum();
-
-    public int RatingPercentage(int stars) =>
-        TotalVisibleReviews == 0 ? 0 : (int)Math.Round(Provider.RatingBreakdown[stars - 1] * 100.0 / TotalVisibleReviews);
 }

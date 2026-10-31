@@ -31,6 +31,7 @@
             <span class="nav-badge" aria-label="طلبات جديدة">@Model.PendingOrdersCount</span>
         }
     </a>
+    <a asp-area="Provider" asp-controller="Reviews" asp-action="Index" class="@Active("Reviews")"><i class="fa-regular fa-star" aria-hidden="true"></i>التقييمات</a>
     <a asp-area="Provider" asp-controller="Profile" asp-action="Edit" class="@Active("Profile")"><i class="fa-regular fa-id-badge" aria-hidden="true"></i>الملف الاحترافي</a>
     <a asp-area="Provider" asp-controller="Services" asp-action="Index" class="@Active("Services")"><i class="fa-solid fa-list-check" aria-hidden="true"></i>الخدمات والأسعار</a>
     <a asp-area="Provider" asp-controller="WorkAreas" asp-action="Index" class="@Active("WorkAreas")"><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>مناطق العمل</a>

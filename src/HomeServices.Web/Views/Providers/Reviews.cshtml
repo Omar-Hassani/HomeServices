@@ -1,0 +1,48 @@
+@model ReviewsPageViewModel
+@{
+    var r = Model.Reviews;
+    ViewData["Title"] = $"تقييمات {r.ProviderName}";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/providers.css" asp-append-version="true" />
+}
+
+<section class="page-hero">
+    <div class="container">
+        <ol class="breadcrumb-hs">
+            <li><a asp-controller="Home" asp-action="Index">الرئيسية</a></li>
+            <li><a asp-controller="Providers" asp-action="Index">مقدمو الخدمات</a></li>
+            <li><a asp-controller="Providers" asp-action="Details" asp-route-id="@r.ProviderId">@r.ProviderName</a></li>
+            <li aria-current="page">التقييمات</li>
+        </ol>
+        <h1>تقييمات @r.ProviderName</h1>
+        <p>آراء عملاء أتمّوا طلباتهم فعلياً مع مقدم الخدمة.</p>
+    </div>
+</section>
+
+<section class="section pt-4 pt-lg-5">
+    <div class="container" style="max-width: 860px">
+        <article class="detail-section">
+            @if (r.Reviews.TotalCount > 0)
+            {
+                <partial name="_RatingSummary" model="Model.Summary" />
+                <partial name="_ReviewList" model="r.Reviews.Items" />
+                <partial name="_Pagination" model="Model.Pagination" />
+            }
+            else
+            {
+                <div class="reviews-empty">
+                    <i class="fa-regular fa-comment-dots" aria-hidden="true"></i>
+                    <div>
+                        <strong>لا توجد تقييمات بعد</strong>
+                        <span>تظهر التقييمات هنا بعد أن يُتم العملاء طلباتهم مع مقدم الخدمة.</span>
+                    </div>
+                </div>
+            }
+        </article>
+        <a class="back-link mt-2" asp-controller="Providers" asp-action="Details" asp-route-id="@r.ProviderId">
+            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>العودة لملف @r.ProviderName
+        </a>
+    </div>
+</section>

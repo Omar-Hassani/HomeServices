@@ -233,6 +233,12 @@ internal sealed class OrderService(ApplicationDbContext db, ILogger<OrderService
             .Select(h => new OrderHistoryItemDto(h.FromStatus, h.ToStatus, h.Note, h.ChangedByUser != null ? h.ChangedByUser.FullName : null, h.ChangedAt))
             .ToListAsync(cancellationToken);
 
+        var review = await db.Reviews
+            .AsNoTracking()
+            .Where(r => r.ServiceRequestId == orderId)
+            .Select(r => new OrderReviewDto(r.Rating, r.Comment, r.CreatedAt, r.IsHidden))
+            .FirstOrDefaultAsync(cancellationToken);
+
         var isCustomer = data.CustomerId == userId;
         var contactVisible = ContactVisibleStatuses.Contains(data.Status);
 
@@ -261,7 +267,8 @@ internal sealed class OrderService(ApplicationDbContext db, ILogger<OrderService
             CreatedAt = data.CreatedAt,
             CompletedAt = data.CompletedAt,
             History = history,
-            AvailableActions = ServiceRequestWorkflow.AvailableActions(data.Status, isCustomer)
+            AvailableActions = ServiceRequestWorkflow.AvailableActions(data.Status, isCustomer),
+            Review = review
         };
     }
 
@@ -375,7 +382,8 @@ internal sealed class OrderService(ApplicationDbContext db, ILogger<OrderService
                 r.TimeSlot,
                 r.Status,
                 r.AgreedPrice,
-                r.CreatedAt))
+                r.CreatedAt,
+                r.Review != null))
             .ToListAsync(cancellationToken);
 
         return new PagedResult<OrderSummaryDto>(items, total, page, PageSize);

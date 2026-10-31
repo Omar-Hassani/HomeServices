@@ -36,6 +36,7 @@ public static class OrderViewModelFactory
         Order = order,
         ActionUrl = url.Action("Action", new { id = order.Id })!,
         BackUrl = url.Action("Index")!,
+        ReviewUrl = order.ViewerIsCustomer ? url.Action("Review", new { id = order.Id }) : null,
         IsNew = isNew
     };
 }

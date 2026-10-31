@@ -1,0 +1,20 @@
+@model IEnumerable<ReviewDto>
+<div class="review-list">
+    @foreach (var review in Model)
+    {
+        <div class="review-item">
+            <div class="review-head">
+                <span class="avatar" style="--avatar-size: 40px" aria-hidden="true">@review.CustomerDisplayName.ToInitials()</span>
+                <div>
+                    <strong>@review.CustomerDisplayName</strong>
+                    <small>@review.ServiceName · @review.CreatedAt.ToSyriaDate()</small>
+                </div>
+                <star-rating value="@review.Rating" />
+            </div>
+            @if (!string.IsNullOrWhiteSpace(review.Comment))
+            {
+                <p>@review.Comment</p>
+            }
+        </div>
+    }
+</div>

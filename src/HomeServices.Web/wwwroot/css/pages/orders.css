@@ -381,20 +381,6 @@
     margin-bottom: 1.5rem;
 }
 
-.back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: .45rem;
-    font-size: .88rem;
-    font-weight: 500;
-    color: var(--hs-muted);
-    margin-bottom: .75rem;
-}
-
-.back-link:hover {
-    color: var(--hs-primary);
-}
-
 .order-header-main {
     display: flex;
     align-items: flex-start;
@@ -660,6 +646,103 @@
     padding: .85rem;
     border-radius: var(--hs-radius-sm);
     background: var(--hs-danger-100);
+}
+
+/* ---------- التقييم ---------- */
+.review-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .22rem .65rem;
+    border-radius: var(--hs-radius-pill);
+    background: var(--hs-accent-100);
+    color: #8A5408;
+    font-size: .75rem;
+    font-weight: 600;
+}
+
+.review-chip i {
+    color: var(--hs-accent);
+    font-size: .68rem;
+}
+
+.review-panel {
+    border-color: color-mix(in srgb, var(--hs-accent) 45%, var(--hs-line));
+    box-shadow: 0 0 0 4px rgba(var(--hs-accent-rgb), .1);
+}
+
+.star-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+}
+
+/* ترتيب العناصر في الصفحة 5→1 مع row-reverse: النجمة الأولى يميناً، وتلوين المحددة وما قبلها بمحدد ~ */
+.star-input {
+    display: inline-flex;
+    flex-direction: row-reverse;
+    gap: .2rem;
+}
+
+.star-input input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+}
+
+.star-input label {
+    font-size: 2rem;
+    line-height: 1;
+    padding: .1rem;
+    color: var(--hs-line-strong);
+    cursor: pointer;
+    transition: color var(--hs-duration) var(--hs-ease), transform var(--hs-duration) var(--hs-ease);
+}
+
+.star-input input:checked ~ label {
+    color: var(--hs-accent);
+}
+
+.star-input:hover label {
+    color: var(--hs-line-strong);
+}
+
+.star-input label:hover,
+.star-input label:hover ~ label {
+    color: var(--hs-accent);
+}
+
+.star-input label:hover {
+    transform: scale(1.15);
+}
+
+.star-input input:focus-visible + label {
+    outline: 3px solid rgba(var(--hs-primary-rgb), .35);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+.rating-hint {
+    font-weight: 600;
+    color: var(--hs-muted);
+}
+
+.rating-hint.is-set {
+    color: var(--hs-ink);
+}
+
+.given-review {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+}
+
+.given-review .star-rating {
+    font-size: 1.15rem;
 }
 
 .order-created {

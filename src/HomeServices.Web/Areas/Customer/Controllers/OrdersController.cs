@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using HomeServices.Application.Constants;
 using HomeServices.Application.DTOs.Orders;
+using HomeServices.Application.DTOs.Reviews;
 using HomeServices.Application.Interfaces;
 using HomeServices.Domain.Enums;
 using HomeServices.Web.ViewModels.Orders;
@@ -11,7 +12,7 @@ namespace HomeServices.Web.Areas.Customer.Controllers;
 
 [Area("Customer")]
 [Authorize(Roles = Roles.Customer)]
-public class OrdersController(IOrderService orderService) : Controller
+public class OrdersController(IOrderService orderService, IReviewService reviewService) : Controller
 {
     private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
@@ -46,6 +47,14 @@ public class OrdersController(IOrderService orderService) : Controller
 
         var result = await orderService.ExecuteActionAsync(id, CurrentUserId, new OrderActionInput(form.Action, form.Note, null), cancellationToken);
         TempData[result.Succeeded ? "Success" : "Error"] = result.Succeeded ? "تم إلغاء الطلب." : string.Join(" ", result.Errors);
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Review(int id, ReviewForm form, CancellationToken cancellationToken)
+    {
+        var result = await reviewService.CreateAsync(CurrentUserId, id, new ReviewInput(form.Rating, form.Comment), cancellationToken);
+        TempData[result.Succeeded ? "Success" : "Error"] = result.Succeeded ? "شكراً لك! تم نشر تقييمك." : string.Join(" ", result.Errors);
         return RedirectToAction(nameof(Details), new { id });
     }
 }

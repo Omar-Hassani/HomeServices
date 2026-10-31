@@ -194,7 +194,7 @@ internal sealed class ProviderDirectoryService(ApplicationDbContext db) : IProvi
                 .Select(star => breakdown.FirstOrDefault(b => b.Rating == star)?.Count ?? 0)
                 .ToList(),
             RecentReviews = recentReviews
-                .Select(r => new ReviewDto(ToPrivateDisplayName(r.FullName), r.Rating, r.Comment, r.ServiceName, r.CreatedAt))
+                .Select(r => new ReviewDto(NameFormatter.ToPrivateDisplayName(r.FullName), r.Rating, r.Comment, r.ServiceName, r.CreatedAt))
                 .ToList()
         };
     }
@@ -292,19 +292,5 @@ internal sealed class ProviderDirectoryService(ApplicationDbContext db) : IProvi
             .Where(t => t.Length >= 2)
             .Distinct()
             .Take(MaxSearchTerms);
-    }
-
-    /// <summary>
-    /// لحماية خصوصية العملاء في التقييمات: الاسم الأول والحرف الأول من الكنية فقط.
-    /// </summary>
-    private static string ToPrivateDisplayName(string fullName)
-    {
-        var parts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        return parts.Length switch
-        {
-            0 => "عميل",
-            1 => parts[0],
-            _ => $"{parts[0]} {parts[^1][0]}."
-        };
     }
 }

@@ -1,0 +1,28 @@
+@model ReviewsPageViewModel
+@{
+    ViewData["Title"] = "التقييمات";
+    var r = Model.Reviews;
+}
+
+<div class="dash-header">
+    <div>
+        <h1>التقييمات</h1>
+        <p>آراء عملائك بعد إتمام طلباتهم. التقييمات الجيدة ترفع ترتيبك في نتائج البحث.</p>
+    </div>
+</div>
+
+<div class="panel">
+    @if (r.Reviews.TotalCount > 0)
+    {
+        <partial name="_RatingSummary" model="Model.Summary" />
+        <partial name="_ReviewList" model="r.Reviews.Items" />
+        <partial name="_Pagination" model="Model.Pagination" />
+    }
+    else
+    {
+        <partial name="_EmptyState" model='new EmptyStateViewModel {
+            Icon = "fa-regular fa-star",
+            Title = "لا توجد تقييمات بعد",
+            Message = "بعد إتمام أي طلب، يستطيع العميل تقييم خدمتك. أنجز طلباتك بإتقان لتحصل على تقييمات ممتازة." }' />
+    }
+</div>
