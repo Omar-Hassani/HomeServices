@@ -1,0 +1,41 @@
+@using HomeServices.Application.DTOs.ProviderManagement
+@using HomeServices.Domain.Enums
+@model ProviderNavInfo?
+@{
+    var controller = ViewContext.RouteData.Values["controller"] as string;
+    string? Active(string name) => string.Equals(controller, name, StringComparison.OrdinalIgnoreCase) ? "active" : null;
+    var statusClass = Model?.VerificationStatus switch
+    {
+        VerificationStatus.Approved => "is-approved",
+        VerificationStatus.Rejected or VerificationStatus.Suspended => "is-rejected",
+        _ => "is-pending"
+    };
+}
+<nav class="dash-nav" aria-label="لوحة مقدم الخدمة">
+    @if (Model is not null)
+    {
+        <div class="dash-nav-status @statusClass">
+            <span class="dash-nav-status-label">@Model.VerificationStatus.GetDisplayName()</span>
+            <div class="dash-progress" role="progressbar" aria-valuenow="@Model.CompletionPercent" aria-valuemin="0" aria-valuemax="100" aria-label="اكتمال الملف">
+                <span style="width: @(Model.CompletionPercent)%"></span>
+            </div>
+            <small>اكتمال الملف <span dir="ltr">@(Model.CompletionPercent)%</span></small>
+        </div>
+    }
+
+    <a asp-area="Provider" asp-controller="Dashboard" asp-action="Index" class="@Active("Dashboard")"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i>الرئيسية</a>
+    <a asp-area="Provider" asp-controller="Profile" asp-action="Edit" class="@Active("Profile")"><i class="fa-regular fa-id-badge" aria-hidden="true"></i>الملف الاحترافي</a>
+    <a asp-area="Provider" asp-controller="Services" asp-action="Index" class="@Active("Services")"><i class="fa-solid fa-list-check" aria-hidden="true"></i>الخدمات والأسعار</a>
+    <a asp-area="Provider" asp-controller="WorkAreas" asp-action="Index" class="@Active("WorkAreas")"><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>مناطق العمل</a>
+    <a asp-area="Provider" asp-controller="Portfolio" asp-action="Index" class="@Active("Portfolio")"><i class="fa-regular fa-images" aria-hidden="true"></i>معرض الأعمال</a>
+
+    <div class="dash-nav-divider"></div>
+
+    @if (Model is not null)
+    {
+        <a asp-area="" asp-controller="Providers" asp-action="Details" asp-route-id="@Model.ProfileId" target="_blank">
+            <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>معاينة ملفي العام
+        </a>
+    }
+    <a asp-area="" asp-controller="Account" asp-action="Profile"><i class="fa-solid fa-user-gear" aria-hidden="true"></i>إعدادات الحساب</a>
+</nav>

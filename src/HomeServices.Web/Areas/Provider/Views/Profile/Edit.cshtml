@@ -1,0 +1,78 @@
+@model ProfileFormViewModel
+@{
+    ViewData["Title"] = "الملف الاحترافي";
+}
+
+<div class="dash-header">
+    <div>
+        <h1>الملف الاحترافي</h1>
+        <p>هذه المعلومات تظهر للعملاء في صفحتك وفي نتائج البحث.</p>
+    </div>
+</div>
+
+<div class="panel">
+    <form asp-action="Edit" method="post" novalidate>
+        <div asp-validation-summary="ModelOnly" class="form-alert" role="alert"></div>
+
+        <div class="mb-4">
+            <label asp-for="Headline" class="form-label"></label>
+            <input asp-for="Headline" class="form-control" maxlength="120" data-char-counter placeholder="مثال: كهربائي منازل وأنظمة طاقة شمسية بخبرة 10 سنوات" />
+            <div class="d-flex justify-content-between">
+                <span asp-validation-for="Headline" class="field-validation-error"></span>
+                <small class="form-hint char-counter" aria-live="polite"></small>
+            </div>
+            <small class="form-hint">جملة قصيرة تصف تخصصك، تظهر تحت اسمك في بطاقتك.</small>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="Bio" class="form-label"></label>
+            <textarea asp-for="Bio" class="form-control" rows="6" maxlength="2000" data-char-counter
+                      placeholder="عرّف العملاء بنفسك: خبرتك، أبرز الأعمال التي أنجزتها، طريقة عملك، وما يميزك..."></textarea>
+            <div class="d-flex justify-content-between">
+                <span asp-validation-for="Bio" class="field-validation-error"></span>
+                <small class="form-hint char-counter" aria-live="polite"></small>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label asp-for="CityId" class="form-label"></label>
+                <div class="input-icon">
+                    <i class="fa-solid fa-city" aria-hidden="true"></i>
+                    <select asp-for="CityId" class="form-select">
+                        <option value="">اختر المحافظة</option>
+                        @foreach (var city in Model.Cities)
+                        {
+                            <option value="@city.Id">@city.Name</option>
+                        }
+                    </select>
+                </div>
+                <span asp-validation-for="CityId" class="field-validation-error"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="YearsOfExperience" class="form-label"></label>
+                <div class="input-icon">
+                    <i class="fa-solid fa-briefcase" aria-hidden="true"></i>
+                    <input asp-for="YearsOfExperience" type="number" min="0" max="60" class="form-control" />
+                </div>
+                <span asp-validation-for="YearsOfExperience" class="field-validation-error"></span>
+            </div>
+        </div>
+
+        <div class="form-check form-switch">
+            <input asp-for="IsAvailable" class="form-check-input" role="switch" />
+            <label asp-for="IsAvailable" class="form-check-label fw-semibold"></label>
+        </div>
+
+        <div class="panel-actions">
+            <a class="btn btn-ghost" asp-controller="Dashboard" asp-action="Index">إلغاء</a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-check" aria-hidden="true"></i><span class="btn-label">حفظ الملف</span>
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

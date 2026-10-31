@@ -113,6 +113,39 @@
         });
     });
 
+    // نافذة تأكيد للأزرار التي تحمل data-confirm (مثل الحذف) قبل إرسال النموذج
+    const confirmModalEl = document.getElementById('confirmModal');
+    if (confirmModalEl && window.bootstrap) {
+        const confirmModal = window.bootstrap.Modal.getOrCreateInstance(confirmModalEl);
+        const messageEl = confirmModalEl.querySelector('[data-confirm-message]');
+        const acceptBtn = confirmModalEl.querySelector('[data-confirm-accept]');
+        let pendingForm = null;
+
+        document.addEventListener('click', (event) => {
+            const trigger = event.target.closest('button[data-confirm]');
+            if (!trigger || !trigger.form) return;
+            event.preventDefault();
+            pendingForm = trigger.form;
+            messageEl.textContent = trigger.dataset.confirm;
+            confirmModal.show();
+        });
+
+        acceptBtn.addEventListener('click', () => {
+            if (!pendingForm) return;
+            const form = pendingForm;
+            pendingForm = null;
+            confirmModal.hide();
+            form.submit();
+        });
+    }
+
+    // رفع الملف تلقائياً فور اختياره (مثل الصورة الشخصية)
+    document.querySelectorAll('input[type="file"][data-auto-submit-file]').forEach((input) => {
+        input.addEventListener('change', () => {
+            if (input.files.length) input.form?.requestSubmit();
+        });
+    });
+
     // حالة التحميل لأزرار الإرسال ومنع الإرسال المزدوج
     document.addEventListener('submit', (event) => {
         const form = event.target;

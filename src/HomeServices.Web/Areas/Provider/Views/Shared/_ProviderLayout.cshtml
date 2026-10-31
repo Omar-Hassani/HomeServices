@@ -1,0 +1,26 @@
+@{
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/dashboard.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+}
+
+<section class="dash-shell">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-3">
+                @await Component.InvokeAsync("ProviderNav")
+            </div>
+            <div class="col-lg-9">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/dashboard.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+}

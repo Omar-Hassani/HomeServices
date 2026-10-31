@@ -1,6 +1,7 @@
 using HomeServices.Application.Common;
 using HomeServices.Application.Constants;
 using HomeServices.Application.DTOs.Account;
+using HomeServices.Application.DTOs.Files;
 using HomeServices.Application.Interfaces;
 using HomeServices.Domain.Entities;
 using HomeServices.Domain.Enums;
@@ -15,6 +16,7 @@ internal sealed class AccountService(
     ApplicationDbContext db,
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
+    IFileStorageService fileStorage,
     ILogger<AccountService> logger) : IAccountService
 {
     private const string InvalidPhoneMessage = "رقم الهاتف غير صالح. أدخل رقم جوال سوري مثل 0912345678.";
@@ -167,6 +169,59 @@ internal sealed class AccountService(
 
         // تغيير كلمة المرور يغيّر SecurityStamp، فنجدد الكوكي للجلسة الحالية
         await signInManager.RefreshSignInAsync(user);
+        return Result.Success();
+    }
+
+    public async Task<Result> UpdateProfileImageAsync(string userId, FileUpload image, CancellationToken cancellationToken = default)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is null)
+        {
+            return Result.Failure("الحساب غير موجود.");
+        }
+
+        var saved = await fileStorage.SaveImageAsync(image, StorageFolders.ProfileImages, cancellationToken);
+        if (!saved.Succeeded)
+        {
+            return Result.Failure(saved.Errors);
+        }
+
+        var previous = user.ProfileImagePath;
+        user.ProfileImagePath = saved.Value;
+
+        var updated = await userManager.UpdateAsync(user);
+        if (!updated.Succeeded)
+        {
+            await fileStorage.DeleteAsync(saved.Value, cancellationToken);
+            return Result.Failure(updated.Errors.Select(e => e.Description));
+        }
+
+        await fileStorage.DeleteAsync(previous, cancellationToken);
+        return Result.Success();
+    }
+
+    public async Task<Result> RemoveProfileImageAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is null)
+        {
+            return Result.Failure("الحساب غير موجود.");
+        }
+
+        var previous = user.ProfileImagePath;
+        if (previous is null)
+        {
+            return Result.Success();
+        }
+
+        user.ProfileImagePath = null;
+        var updated = await userManager.UpdateAsync(user);
+        if (!updated.Succeeded)
+        {
+            return Result.Failure(updated.Errors.Select(e => e.Description));
+        }
+
+        await fileStorage.DeleteAsync(previous, cancellationToken);
         return Result.Success();
     }
 }

@@ -17,6 +17,43 @@
     border-radius: var(--hs-radius-lg);
 }
 
+.photo-editor {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.photo-editor .avatar {
+    border: 3px solid var(--hs-surface);
+    box-shadow: var(--hs-shadow-sm);
+}
+
+.photo-editor-btn {
+    position: absolute;
+    bottom: 0;
+    inset-inline-end: -4px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--hs-primary);
+    color: #fff;
+    font-size: .85rem;
+    border: 3px solid var(--hs-surface);
+    cursor: pointer;
+    transition: transform var(--hs-duration) var(--hs-ease), background-color var(--hs-duration) var(--hs-ease);
+}
+
+.photo-editor-btn:hover {
+    background: var(--hs-primary-700);
+    transform: scale(1.08);
+}
+
+.photo-editor-btn:focus-within {
+    outline: 3px solid rgba(var(--hs-primary-rgb), .35);
+    outline-offset: 2px;
+}
+
 .account-hero h1 {
     font-size: 1.5rem;
     margin-bottom: .4rem;
@@ -82,39 +119,6 @@
 .account-nav button.text-danger:hover {
     background: var(--hs-danger-100);
     color: var(--hs-danger) !important;
-}
-
-.panel {
-    background: var(--hs-surface);
-    border: 1px solid var(--hs-line);
-    border-radius: var(--hs-radius-lg);
-    padding: clamp(1.25rem, 3vw, 2rem);
-}
-
-.panel-header {
-    padding-bottom: 1.25rem;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid var(--hs-line);
-}
-
-.panel-header h2 {
-    font-size: 1.2rem;
-    margin-bottom: .25rem;
-}
-
-.panel-header p {
-    color: var(--hs-muted);
-    font-size: .9rem;
-    margin: 0;
-}
-
-.panel-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: .5rem;
-    margin-top: 1.75rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--hs-line);
 }
 
 @media (max-width: 991.98px) {

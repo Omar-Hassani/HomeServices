@@ -482,3 +482,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# User-uploaded files (profile photos, portfolio images)
+src/HomeServices.Web/wwwroot/uploads/

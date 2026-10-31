@@ -4,6 +4,7 @@ using HomeServices.Infrastructure.Data;
 using HomeServices.Infrastructure.Data.Seed;
 using HomeServices.Infrastructure.Identity;
 using HomeServices.Infrastructure.Services;
+using HomeServices.Infrastructure.Storage;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -53,7 +54,10 @@ public static class DependencyInjection
 
         services.AddScoped<IdentitySeeder>();
 
+        services.AddSingleton<IFileStorageService, LocalFileStorageService>();
+
         services.AddScoped<IAccountService, AccountService>();
+        services.AddScoped<IProviderProfileService, ProviderProfileService>();
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<ILocationService, LocationService>();
         services.AddScoped<IProviderDirectoryService, ProviderDirectoryService>();

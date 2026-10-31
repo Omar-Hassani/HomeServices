@@ -1,5 +1,6 @@
 using HomeServices.Application.Common;
 using HomeServices.Application.DTOs.Account;
+using HomeServices.Application.DTOs.Files;
 
 namespace HomeServices.Application.Interfaces;
 
@@ -19,4 +20,8 @@ public interface IAccountService
     Task<Result> UpdateProfileAsync(string userId, UpdateProfileDto dto);
 
     Task<Result> ChangePasswordAsync(string userId, string currentPassword, string newPassword);
+
+    Task<Result> UpdateProfileImageAsync(string userId, FileUpload image, CancellationToken cancellationToken = default);
+
+    Task<Result> RemoveProfileImageAsync(string userId, CancellationToken cancellationToken = default);
 }

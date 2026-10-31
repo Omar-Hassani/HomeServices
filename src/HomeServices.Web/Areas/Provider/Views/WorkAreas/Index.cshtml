@@ -1,0 +1,58 @@
+@model WorkAreasViewModel
+@{
+    ViewData["Title"] = "مناطق العمل";
+}
+
+<div class="dash-header">
+    <div>
+        <h1>مناطق العمل</h1>
+        <p>اختر المناطق التي تستطيع الوصول إليها. يظهر ملفك للعملاء الذين يبحثون في هذه المناطق.</p>
+    </div>
+</div>
+
+<form asp-action="Index" method="post">
+    <div class="panel">
+        <div class="panel-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div>
+                <h2>المحافظات والمناطق</h2>
+                <p>يمكنك اختيار حتى 40 منطقة.</p>
+            </div>
+            <span class="selection-counter" aria-live="polite">المناطق المختارة: <strong data-area-counter>@Model.SelectedAreaIds.Count</strong></span>
+        </div>
+
+        <div class="accordion area-accordion" id="areasAccordion">
+            @foreach (var city in Model.Cities)
+            {
+                var selectedInCity = city.Areas.Count(a => Model.SelectedAreaIds.Contains(a.Id));
+                var expanded = selectedInCity > 0;
+                <div class="accordion-item" data-city-group>
+                    <h3 class="accordion-header">
+                        <button class="accordion-button @(expanded ? null : "collapsed")" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#city-@city.Id" aria-expanded="@(expanded ? "true" : "false")" aria-controls="city-@city.Id">
+                            <span class="flex-grow-1">@city.Name</span>
+                            <span class="city-count" data-city-count>@(selectedInCity > 0 ? selectedInCity.ToString() : null)</span>
+                        </button>
+                    </h3>
+                    <div id="city-@city.Id" class="accordion-collapse collapse @(expanded ? "show" : null)">
+                        <div class="accordion-body">
+                            <button type="button" class="btn btn-link btn-sm p-0 mb-2" data-select-all-city>تحديد الكل / إلغاء الكل</button>
+                            <div class="area-options">
+                                @foreach (var area in city.Areas)
+                                {
+                                    <input class="btn-check" type="checkbox" name="areaIds" value="@area.Id" id="area-@area.Id" checked="@Model.SelectedAreaIds.Contains(area.Id)" />
+                                    <label class="area-option" for="area-@area.Id"><i class="fa-solid fa-check" aria-hidden="true"></i>@area.Name</label>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="panel-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-check" aria-hidden="true"></i><span class="btn-label">حفظ مناطق العمل</span>
+            </button>
+        </div>
+    </div>
+</form>

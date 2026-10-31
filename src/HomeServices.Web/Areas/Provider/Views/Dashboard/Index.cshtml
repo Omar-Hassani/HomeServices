@@ -1,0 +1,182 @@
+@model DashboardViewModel
+@{
+    var d = Model.Dashboard;
+    ViewData["Title"] = "لوحة مقدم الخدمة";
+    var firstName = d.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? d.FullName;
+}
+
+<div class="dash-header">
+    <div>
+        <h1>أهلاً، @firstName</h1>
+        <p>من هنا تدير ملفك الاحترافي وخدماتك ومناطق عملك.</p>
+    </div>
+    <a class="btn btn-soft" asp-area="" asp-controller="Providers" asp-action="Details" asp-route-id="@d.ProfileId" target="_blank">
+        <i class="fa-solid fa-eye" aria-hidden="true"></i>معاينة ملفي
+    </a>
+</div>
+
+<!-- حالة التوثيق -->
+@switch (d.VerificationStatus)
+{
+    case VerificationStatus.Approved:
+        <div class="status-card is-approved">
+            <span class="status-card-icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
+            <div>
+                <h2>ملفك موثّق وظاهر للعملاء</h2>
+                <p>يظهر ملفك الآن في نتائج البحث. حافظ على تحديث أسعارك ومناطق عملك لتصلك طلبات أكثر.</p>
+            </div>
+        </div>
+        break;
+
+    case VerificationStatus.Rejected:
+        <div class="status-card is-rejected">
+            <span class="status-card-icon"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></span>
+            <div class="flex-grow-1">
+                <h2>لم تتم الموافقة على ملفك</h2>
+                @if (!string.IsNullOrWhiteSpace(d.VerificationNote))
+                {
+                    <p class="status-note"><strong>ملاحظة الإدارة:</strong> @d.VerificationNote</p>
+                }
+                <p>عدّل ملفك وفق الملاحظات ثم أعد إرساله للمراجعة.</p>
+                <form asp-action="Resubmit" method="post" class="mt-3">
+                    <button type="submit" class="btn btn-primary btn-sm" disabled="@(!d.IsComplete)">
+                        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span class="btn-label">إعادة الإرسال للمراجعة</span>
+                    </button>
+                    @if (!d.IsComplete)
+                    {
+                        <small class="d-block mt-2">أكمل العناصر المطلوبة أدناه أولاً.</small>
+                    }
+                </form>
+            </div>
+        </div>
+        break;
+
+    case VerificationStatus.Suspended:
+        <div class="status-card is-rejected">
+            <span class="status-card-icon"><i class="fa-solid fa-ban" aria-hidden="true"></i></span>
+            <div>
+                <h2>ملفك موقوف مؤقتاً</h2>
+                @if (!string.IsNullOrWhiteSpace(d.VerificationNote))
+                {
+                    <p class="status-note"><strong>ملاحظة الإدارة:</strong> @d.VerificationNote</p>
+                }
+                <p>ملفك غير ظاهر للعملاء حالياً. يرجى التواصل مع إدارة المنصة.</p>
+            </div>
+        </div>
+        break;
+
+    default:
+        if (d.IsComplete)
+        {
+            <div class="status-card is-pending">
+                <span class="status-card-icon"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></span>
+                <div>
+                    <h2>ملفك قيد المراجعة</h2>
+                    <p>أكملت كل البيانات المطلوبة. ستراجع إدارة المنصة ملفك قريباً، وسيظهر للعملاء فور الموافقة عليه.</p>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="status-card is-info">
+                <span class="status-card-icon"><i class="fa-solid fa-list-check" aria-hidden="true"></i></span>
+                <div>
+                    <h2>أكمل ملفك ليبدأ العملاء بالوصول إليك</h2>
+                    <p>بعد إكمال العناصر المطلوبة في القائمة أدناه، تراجع الإدارة ملفك ثم يظهر في نتائج البحث.</p>
+                </div>
+            </div>
+        }
+        break;
+}
+
+<!-- الإحصائيات -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+        <div class="stat-card">
+            <span class="stat-card-icon"><i class="fa-solid fa-list-check" aria-hidden="true"></i></span>
+            <strong>@d.ServicesCount</strong>
+            <span>الخدمات</span>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card">
+            <span class="stat-card-icon"><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i></span>
+            <strong>@d.AreasCount</strong>
+            <span>مناطق العمل</span>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card">
+            <span class="stat-card-icon is-accent"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+            <strong>@(d.ReviewsCount > 0 ? d.AverageRating.ToRatingText() : "—")</strong>
+            <span>@(d.ReviewsCount > 0 ? d.ReviewsCount.ToReviewsCountText() : "لا تقييمات بعد")</span>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card">
+            <span class="stat-card-icon is-success"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
+            <strong>@d.CompletedOrdersCount</strong>
+            <span>الطلبات المكتملة</span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- قائمة اكتمال الملف -->
+    <div class="col-xl-7">
+        <div class="panel h-100">
+            <div class="panel-header d-flex align-items-center justify-content-between gap-3">
+                <div>
+                    <h2>اكتمال الملف</h2>
+                    <p>الملف المكتمل يحصل على ثقة أكبر من العملاء.</p>
+                </div>
+                <div class="completion-ring" style="--value: @d.CompletionPercent" role="img" aria-label="اكتمال الملف @d.CompletionPercent بالمئة">
+                    <span>@(d.CompletionPercent)%</span>
+                </div>
+            </div>
+            <ul class="checklist">
+                @foreach (var item in d.Checklist)
+                {
+                    <li class="@(item.IsDone ? "is-done" : null)">
+                        <span class="checklist-mark"><i class="fa-solid @(item.IsDone ? "fa-check" : "fa-circle") " aria-hidden="true"></i></span>
+                        <span class="checklist-label">
+                            @item.Label
+                            @if (!item.IsRequired)
+                            {
+                                <small>(اختياري)</small>
+                            }
+                        </span>
+                        @if (!item.IsDone && Model.ChecklistLinks.TryGetValue(item.Key, out var link))
+                        {
+                            <a class="btn btn-soft btn-sm" href="@link">أكمل</a>
+                        }
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <!-- التوفر -->
+    <div class="col-xl-5">
+        <div class="panel h-100">
+            <div class="panel-header">
+                <h2>استقبال الطلبات</h2>
+                <p>أوقف استقبال الطلبات مؤقتاً عندما تكون مشغولاً أو في إجازة.</p>
+            </div>
+            <div class="availability-box @(d.IsAvailable ? "is-on" : null)">
+                <span class="availability-indicator"></span>
+                <div class="flex-grow-1">
+                    <strong>@(d.IsAvailable ? "متاح لاستقبال الطلبات" : "غير متاح حالياً")</strong>
+                    <small>@(d.IsAvailable ? "يمكن للعملاء إرسال طلبات جديدة لك." : "لن يتمكن العملاء من إرسال طلبات جديدة.")</small>
+                </div>
+            </div>
+            <form asp-action="SetAvailability" method="post" class="mt-3">
+                <input type="hidden" name="isAvailable" value="@((!d.IsAvailable).ToString().ToLowerInvariant())" />
+                <button type="submit" class="btn @(d.IsAvailable ? "btn-ghost border" : "btn-primary") w-100">
+                    <i class="fa-solid @(d.IsAvailable ? "fa-pause" : "fa-play")" aria-hidden="true"></i>
+                    <span class="btn-label">@(d.IsAvailable ? "إيقاف استقبال الطلبات مؤقتاً" : "تفعيل استقبال الطلبات")</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

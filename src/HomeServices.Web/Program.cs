@@ -54,6 +54,19 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStatusCodePagesWithReExecute("/Home/StatusCode/{0}");
 app.UseHttpsRedirection();
+
+// الملفات المرفوعة وقت التشغيل (wwwroot/uploads) لا يخدمها MapStaticAssets لأنها غير موجودة وقت البناء
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = context =>
+    {
+        if (context.Context.Request.Path.StartsWithSegments("/uploads"))
+        {
+            context.Context.Response.Headers.XContentTypeOptions = "nosniff";
+        }
+    }
+});
+
 app.UseRequestLocalization();
 app.UseRouting();
 

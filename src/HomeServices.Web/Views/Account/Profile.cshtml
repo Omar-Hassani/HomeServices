@@ -10,15 +10,24 @@
 <section class="account-shell">
     <div class="container">
         <div class="account-hero">
-            @if (!string.IsNullOrEmpty(Model.ProfileImagePath))
-            {
-                <img class="avatar" src="@Model.ProfileImagePath" alt="" style="--avatar-size: 72px" />
-            }
-            else
-            {
-                <span class="avatar" style="--avatar-size: 72px" aria-hidden="true">@Model.FullName.ToInitials()</span>
-            }
-            <div>
+            <div class="photo-editor">
+                @if (!string.IsNullOrEmpty(Model.ProfileImagePath))
+                {
+                    <img class="avatar" src="@Model.ProfileImagePath" alt="صورتك الشخصية" style="--avatar-size: 88px" />
+                }
+                else
+                {
+                    <span class="avatar" style="--avatar-size: 88px" aria-hidden="true">@Model.FullName.ToInitials()</span>
+                }
+                <form asp-action="UploadPhoto" method="post" enctype="multipart/form-data">
+                    <label class="photo-editor-btn" title="تغيير الصورة">
+                        <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" class="visually-hidden" data-auto-submit-file />
+                        <i class="fa-solid fa-camera" aria-hidden="true"></i>
+                        <span class="visually-hidden">تغيير الصورة الشخصية</span>
+                    </label>
+                </form>
+            </div>
+            <div class="flex-grow-1">
                 <h1>@Model.FullName</h1>
                 <div class="account-meta">
                     @foreach (var role in Model.Roles)
@@ -27,7 +36,16 @@
                     }
                     <span class="tag"><i class="fa-regular fa-calendar" aria-hidden="true"></i>عضو منذ @Model.CreatedAt.ToLocalTime().ToString("MMMM yyyy")</span>
                 </div>
+                <small class="form-hint">اضغط على أيقونة الكاميرا لتغيير صورتك (JPG أو PNG أو WebP، حتى 5 ميغابايت).</small>
             </div>
+            @if (!string.IsNullOrEmpty(Model.ProfileImagePath))
+            {
+                <form asp-action="RemovePhoto" method="post">
+                    <button type="submit" class="btn btn-ghost btn-sm text-danger" data-no-loading data-confirm="هل تريد حذف صورتك الشخصية؟">
+                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i>حذف الصورة
+                    </button>
+                </form>
+            }
         </div>
 
         <div class="row g-4">

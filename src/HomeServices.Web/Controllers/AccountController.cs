@@ -1,7 +1,7 @@
 using System.Security.Claims;
-using HomeServices.Application.Common;
 using HomeServices.Application.DTOs.Account;
 using HomeServices.Application.Interfaces;
+using HomeServices.Web.Extensions;
 using HomeServices.Web.ViewModels.Account;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -49,14 +49,17 @@ public class AccountController(IAccountService accountService) : Controller
 
         if (!result.Succeeded)
         {
-            AddErrors(result);
+            ModelState.AddErrors(result);
             return View(model);
         }
 
-        TempData["Success"] = model.AccountType == AccountType.Provider
-            ? "تم إنشاء حسابك بنجاح! الخطوة التالية: إكمال ملفك الاحترافي ليُراجع من إدارة المنصة."
-            : $"أهلاً بك يا {model.FullName.Split(' ')[0]}! تم إنشاء حسابك بنجاح.";
+        if (model.AccountType == AccountType.Provider)
+        {
+            TempData["Success"] = "تم إنشاء حسابك بنجاح! الخطوة التالية: إكمال ملفك الاحترافي ليُراجع من إدارة المنصة.";
+            return RedirectToAction("Index", "Dashboard", new { area = "Provider" });
+        }
 
+        TempData["Success"] = $"أهلاً بك يا {model.FullName.Split(' ')[0]}! تم إنشاء حسابك بنجاح.";
         return RedirectToAction("Index", "Home");
     }
 
@@ -143,7 +146,7 @@ public class AccountController(IAccountService accountService) : Controller
                 return RedirectToAction(nameof(Profile));
             }
 
-            AddErrors(result);
+            ModelState.AddErrors(result);
         }
 
         // إعادة تعبئة حقول العرض فقط مع الإبقاء على ما أدخله المستخدم
@@ -174,11 +177,36 @@ public class AccountController(IAccountService accountService) : Controller
         var result = await accountService.ChangePasswordAsync(CurrentUserId, model.CurrentPassword, model.NewPassword);
         if (!result.Succeeded)
         {
-            AddErrors(result);
+            ModelState.AddErrors(result);
             return View(new ChangePasswordViewModel());
         }
 
         TempData["Success"] = "تم تغيير كلمة المرور بنجاح.";
+        return RedirectToAction(nameof(Profile));
+    }
+
+    [HttpPost]
+    [Authorize]
+    [RequestSizeLimit(IFileStorageService.MaxImageBytes + 1024 * 1024)]
+    public async Task<IActionResult> UploadPhoto(IFormFile? photo, CancellationToken cancellationToken)
+    {
+        if (photo is null || photo.Length == 0)
+        {
+            TempData["Error"] = "يرجى اختيار صورة.";
+            return RedirectToAction(nameof(Profile));
+        }
+
+        var result = await accountService.UpdateProfileImageAsync(CurrentUserId, photo.ToFileUpload(), cancellationToken);
+        TempData[result.Succeeded ? "Success" : "Error"] = result.Succeeded ? "تم تحديث صورتك الشخصية." : result.Errors[0];
+        return RedirectToAction(nameof(Profile));
+    }
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> RemovePhoto(CancellationToken cancellationToken)
+    {
+        var result = await accountService.RemoveProfileImageAsync(CurrentUserId, cancellationToken);
+        TempData[result.Succeeded ? "Success" : "Error"] = result.Succeeded ? "تم حذف الصورة الشخصية." : result.Errors[0];
         return RedirectToAction(nameof(Profile));
     }
 
@@ -204,12 +232,4 @@ public class AccountController(IAccountService accountService) : Controller
         !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl)
             ? LocalRedirect(returnUrl)
             : RedirectToAction("Index", "Home");
-
-    private void AddErrors(Result result)
-    {
-        foreach (var error in result.Errors)
-        {
-            ModelState.AddModelError(string.Empty, error);
-        }
-    }
 }
