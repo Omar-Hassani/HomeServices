@@ -4,8 +4,10 @@ using HomeServices.Application.DTOs.Notifications;
 using HomeServices.Application.Interfaces;
 using HomeServices.Domain.Entities;
 using HomeServices.Domain.Enums;
+using HomeServices.Infrastructure.Caching;
 using HomeServices.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace HomeServices.Infrastructure.Services.Admin;
@@ -13,6 +15,7 @@ namespace HomeServices.Infrastructure.Services.Admin;
 internal sealed class ProviderVerificationService(
     ApplicationDbContext db,
     INotificationService notifications,
+    IMemoryCache cache,
     ILogger<ProviderVerificationService> logger) : IProviderVerificationService
 {
     private const int PageSize = 15;
@@ -111,6 +114,9 @@ internal sealed class ProviderVerificationService(
         provider.VerificationNote = string.IsNullOrWhiteSpace(note) ? null : note.Trim();
         await db.SaveChangesAsync(cancellationToken);
 
+        // عدد مقدمي الخدمات الموثّقين في كل فئة جزء من الكتالوج المخزَّن مؤقتاً
+        CatalogCache.Invalidate(cache);
+
         await NotifyAsync(provider,
             wasSuspended ? "تمت إعادة تفعيل ملفك" : "تهانينا! تم توثيق ملفك",
             "ملفك ظاهر الآن للعملاء في نتائج البحث ويمكنهم إرسال الطلبات إليك.",
@@ -152,6 +158,7 @@ internal sealed class ProviderVerificationService(
         provider.VerificationStatus = target;
         provider.VerificationNote = trimmed;
         await db.SaveChangesAsync(cancellationToken);
+        CatalogCache.Invalidate(cache);
 
         await NotifyAsync(provider, notificationTitle, $"ملاحظة الإدارة: {trimmed}", cancellationToken);
         logger.LogInformation("Provider {ProviderId} set to {Status}", providerId, target);

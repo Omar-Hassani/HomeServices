@@ -1,4 +1,7 @@
 using System.Globalization;
+using System.Net;
+using HomeServices.Web.Security;
+using Microsoft.AspNetCore.HttpOverrides;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using Microsoft.Extensions.WebEncoders;
@@ -33,6 +36,23 @@ builder.Services.AddControllersWithViews(options =>
 
 builder.Services.AddSingleton<IValidationAttributeAdapterProvider, ArabicValidationAttributeAdapterProvider>();
 
+builder.Services.AddAppRateLimiting();
+
+// خلف خادم وسيط (Nginx/IIS) يجب قراءة عنوان العميل والبروتوكول الأصليين من ترويسات X-Forwarded-*.
+// عناوين loopback موثوقة افتراضياً، ويمكن إضافة عناوين الخوادم الوسيطة الأخرى في ReverseProxy:KnownProxies
+var behindProxy = builder.Configuration.GetValue<bool>("ReverseProxy:Enabled");
+if (behindProxy)
+{
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        foreach (var proxy in builder.Configuration.GetSection("ReverseProxy:KnownProxies").Get<string[]>() ?? [])
+        {
+            options.KnownProxies.Add(IPAddress.Parse(proxy));
+        }
+    });
+}
+
 // إخراج النصوص العربية كما هي بدل ترميزها ككيانات &#x...; (يبقى ترميز الرموز الخطرة كما هو)
 builder.Services.Configure<WebEncoderOptions>(options =>
     options.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.All));
@@ -50,12 +70,18 @@ var app = builder.Build();
 
 await app.Services.InitializeDatabaseAsync();
 
+if (behindProxy)
+{
+    app.UseForwardedHeaders();
+}
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
+app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseStatusCodePagesWithReExecute("/Home/StatusCode/{0}");
 app.UseHttpsRedirection();
 
@@ -67,17 +93,23 @@ app.UseStaticFiles(new StaticFileOptions
         if (context.Context.Request.Path.StartsWithSegments("/uploads"))
         {
             context.Context.Response.Headers.XContentTypeOptions = "nosniff";
+            // أسماء الملفات المرفوعة فريدة (GUID) ولا تتغير، فيمكن تخزينها طويلاً في المتصفح
+            context.Context.Response.Headers.CacheControl = "public, max-age=2592000, immutable";
         }
     }
 });
 
 app.UseRequestLocalization();
 app.UseRouting();
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+// فحص الحالة لأدوات المراقبة وموازنات التحميل: Healthy عند نجاح الاتصال بقاعدة البيانات
+app.MapHealthChecks("/health");
 
 app.MapControllerRoute(
     name: "areas",

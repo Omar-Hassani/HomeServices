@@ -4,12 +4,14 @@ using HomeServices.Application.DTOs.Admin;
 using HomeServices.Application.Interfaces;
 using HomeServices.Domain.Entities;
 using HomeServices.Domain.Enums;
+using HomeServices.Infrastructure.Caching;
 using HomeServices.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace HomeServices.Infrastructure.Services.Admin;
 
-internal sealed partial class CatalogAdminService(ApplicationDbContext db) : ICatalogAdminService
+internal sealed partial class CatalogAdminService(ApplicationDbContext db, IMemoryCache cache) : ICatalogAdminService
 {
     // قيم الأيقونة واللون تُكتب داخل سمات HTML (class و style)، لذا تُقيَّد بصيغ صارمة
     [GeneratedRegex("^[a-z0-9]+(-[a-z0-9]+)*$")]
@@ -40,6 +42,7 @@ internal sealed partial class CatalogAdminService(ApplicationDbContext db) : ICa
         Apply(category, input);
         db.ServiceCategories.Add(category);
         await db.SaveChangesAsync(cancellationToken);
+        CatalogCache.Invalidate(cache);
         return Result<int>.Success(category.Id);
     }
 
@@ -59,6 +62,7 @@ internal sealed partial class CatalogAdminService(ApplicationDbContext db) : ICa
 
         Apply(category, input);
         await db.SaveChangesAsync(cancellationToken);
+        CatalogCache.Invalidate(cache);
         return Result.Success();
     }
 
@@ -108,6 +112,8 @@ internal sealed partial class CatalogAdminService(ApplicationDbContext db) : ICa
         service.IsActive = input.IsActive;
 
         await db.SaveChangesAsync(cancellationToken);
+
+        CatalogCache.Invalidate(cache);
         return Result.Success();
     }
 
@@ -145,6 +151,7 @@ internal sealed partial class CatalogAdminService(ApplicationDbContext db) : ICa
 
         db.Areas.Add(new Area { CityId = cityId, Name = trimmed, IsActive = true });
         await db.SaveChangesAsync(cancellationToken);
+        CatalogCache.Invalidate(cache);
         return Result.Success();
     }
 
@@ -158,6 +165,7 @@ internal sealed partial class CatalogAdminService(ApplicationDbContext db) : ICa
 
         area.IsActive = isActive;
         await db.SaveChangesAsync(cancellationToken);
+        CatalogCache.Invalidate(cache);
         return Result.Success();
     }
 

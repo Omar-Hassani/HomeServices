@@ -1,6 +1,8 @@
 using HomeServices.Application.Interfaces;
 using HomeServices.Web.Areas.Provider.Models;
 using HomeServices.Web.Extensions;
+using HomeServices.Web.Security;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HomeServices.Web.Areas.Provider.Controllers;
@@ -18,6 +20,7 @@ public class PortfolioController(IProviderProfileService profileService) : Provi
 
     [HttpPost]
     [RequestSizeLimit(IFileStorageService.MaxImageBytes + 1024 * 1024)]
+    [EnableRateLimiting(RateLimitPolicies.Uploads)]
     public async Task<IActionResult> Upload(IFormFile? image, string? caption, CancellationToken cancellationToken)
     {
         if (image is null || image.Length == 0)

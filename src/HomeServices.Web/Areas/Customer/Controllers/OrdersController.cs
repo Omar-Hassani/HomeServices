@@ -4,7 +4,9 @@ using HomeServices.Application.DTOs.Orders;
 using HomeServices.Application.DTOs.Reviews;
 using HomeServices.Application.Interfaces;
 using HomeServices.Domain.Enums;
+using HomeServices.Web.Security;
 using HomeServices.Web.ViewModels.Orders;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,6 +53,7 @@ public class OrdersController(IOrderService orderService, IReviewService reviewS
     }
 
     [HttpPost]
+    [EnableRateLimiting(RateLimitPolicies.Submissions)]
     public async Task<IActionResult> Review(int id, ReviewForm form, CancellationToken cancellationToken)
     {
         var result = await reviewService.CreateAsync(CurrentUserId, id, new ReviewInput(form.Rating, form.Comment), cancellationToken);

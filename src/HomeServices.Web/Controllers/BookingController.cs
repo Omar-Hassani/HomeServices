@@ -3,7 +3,8 @@ using HomeServices.Application.Common;
 using HomeServices.Application.Constants;
 using HomeServices.Application.DTOs.Orders;
 using HomeServices.Application.Interfaces;
-using HomeServices.Web.Extensions;
+using HomeServices.Web.Security;
+using Microsoft.AspNetCore.RateLimiting;
 using HomeServices.Web.ViewModels.Orders;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -34,6 +35,7 @@ public class BookingController(IOrderService orderService) : Controller
     }
 
     [HttpPost]
+    [EnableRateLimiting(RateLimitPolicies.Submissions)]
     public async Task<IActionResult> Create(BookingFormViewModel model, CancellationToken cancellationToken)
     {
         var data = await orderService.GetBookingFormAsync(model.ProviderId, cancellationToken);

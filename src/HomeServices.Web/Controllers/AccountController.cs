@@ -2,6 +2,8 @@ using System.Security.Claims;
 using HomeServices.Application.DTOs.Account;
 using HomeServices.Application.Interfaces;
 using HomeServices.Web.Extensions;
+using HomeServices.Web.Security;
+using Microsoft.AspNetCore.RateLimiting;
 using HomeServices.Web.ViewModels.Account;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,6 +33,7 @@ public class AccountController(IAccountService accountService) : Controller
 
     [HttpPost]
     [AllowAnonymous]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
     public async Task<IActionResult> Register(RegisterViewModel model, CancellationToken cancellationToken)
     {
         if (User.Identity?.IsAuthenticated == true)
@@ -77,6 +80,7 @@ public class AccountController(IAccountService accountService) : Controller
 
     [HttpPost]
     [AllowAnonymous]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
     public async Task<IActionResult> Login(LoginViewModel model)
     {
         if (!ModelState.IsValid)
@@ -188,6 +192,7 @@ public class AccountController(IAccountService accountService) : Controller
     [HttpPost]
     [Authorize]
     [RequestSizeLimit(IFileStorageService.MaxImageBytes + 1024 * 1024)]
+    [EnableRateLimiting(RateLimitPolicies.Uploads)]
     public async Task<IActionResult> UploadPhoto(IFormFile? photo, CancellationToken cancellationToken)
     {
         if (photo is null || photo.Length == 0)

@@ -3,7 +3,9 @@ using HomeServices.Application.Constants;
 using HomeServices.Application.DTOs.Admin;
 using HomeServices.Application.Interfaces;
 using HomeServices.Domain.Entities;
+using HomeServices.Infrastructure.Caching;
 using HomeServices.Infrastructure.Data;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -13,6 +15,7 @@ namespace HomeServices.Infrastructure.Services.Admin;
 internal sealed class UserAdminService(
     ApplicationDbContext db,
     UserManager<ApplicationUser> userManager,
+    IMemoryCache cache,
     ILogger<UserAdminService> logger) : IUserAdminService
 {
     private const int PageSize = 20;
@@ -100,6 +103,9 @@ internal sealed class UserAdminService(
             // تغيير SecurityStamp يُبطل كوكيز الجلسات المفتوحة عند التحقق الدوري التالي
             await userManager.UpdateSecurityStampAsync(user);
         }
+
+        // إيقاف حساب مقدم خدمة يخفيه من الكتالوج، فتتغير أعداد مقدمي الخدمات في الفئات
+        CatalogCache.Invalidate(cache);
 
         logger.LogInformation("User {UserId} active state set to {IsActive} by {AdminId}", userId, isActive, adminUserId);
         return Result.Success();

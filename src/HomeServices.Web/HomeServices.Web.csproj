@@ -11,6 +11,12 @@
     </PackageReference>
   </ItemGroup>
 
+  <!-- ملفات المستخدمين المرفوعة بيانات تشغيل على الخادم: لا تدخل البناء ولا النشر ولا فهرس الملفات الثابتة -->
+  <ItemGroup>
+    <Content Remove="wwwroot\uploads\**" />
+    <None Remove="wwwroot\uploads\**" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>

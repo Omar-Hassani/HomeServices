@@ -43,11 +43,9 @@ internal sealed class LocalFileStorageService(IWebHostEnvironment environment, I
         var fileName = $"{Guid.NewGuid():N}{extension}";
         var absolutePath = Path.Combine(absoluteDirectory, fileName);
 
-        buffer.Position = 0;
-        await using (var output = new FileStream(absolutePath, FileMode.CreateNew, FileAccess.Write))
-        {
-            await buffer.CopyToAsync(output, cancellationToken);
-        }
+        // صور الهواتف قد تحمل إحداثيات GPS لمكان التصوير (غالباً بيت العميل)، فتُزال قبل الحفظ
+        var bytes = extension == ".jpg" ? JpegMetadataScrubber.Scrub(buffer.ToArray()) : buffer.ToArray();
+        await File.WriteAllBytesAsync(absolutePath, bytes, cancellationToken);
 
         var publicPath = "/" + Path.Combine(relativeDirectory, fileName).Replace('\\', '/');
         return Result<string>.Success(publicPath);

@@ -6,6 +6,7 @@ using HomeServices.Infrastructure.Identity;
 using HomeServices.Infrastructure.Services;
 using HomeServices.Infrastructure.Services.Admin;
 using HomeServices.Infrastructure.Storage;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -54,6 +55,20 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IdentitySeeder>();
+
+        services.AddMemoryCache();
+
+        services.AddHealthChecks()
+            .AddDbContextCheck<ApplicationDbContext>("database");
+
+        // مفاتيح حماية البيانات تشفّر كوكيز الدخول ورموز Antiforgery. في الإنتاج يجب حفظها في مجلد دائم،
+        // وإلا تنتهي جلسات كل المستخدمين عند كل إعادة تشغيل للتطبيق
+        var keysPath = configuration["DataProtection:KeysPath"];
+        var dataProtection = services.AddDataProtection().SetApplicationName("HomeServices");
+        if (!string.IsNullOrWhiteSpace(keysPath))
+        {
+            dataProtection.PersistKeysToFileSystem(new DirectoryInfo(keysPath));
+        }
 
         services.AddSingleton<IFileStorageService, LocalFileStorageService>();
 
