@@ -1,0 +1,121 @@
+@model HomeServices.Web.ViewModels.Categories.CategoryDetailsViewModel
+@{
+    var c = Model.Category;
+    ViewData["Title"] = c.Name;
+    ViewData["Description"] = c.Description;
+    var allProvidersUrl = Url.Action("Index", "Providers", new { categoryId = c.Id });
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/providers.css" asp-append-version="true" />
+}
+
+<section class="category-hero" style="--accent: @c.AccentColor">
+    <div class="container">
+        <ol class="breadcrumb-hs">
+            <li><a asp-controller="Home" asp-action="Index">الرئيسية</a></li>
+            <li><a asp-controller="Categories" asp-action="Index">الخدمات</a></li>
+            <li aria-current="page">@c.Name</li>
+        </ol>
+
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <div class="category-hero-title">
+                    <span class="category-hero-icon"><i class="@c.IconClass" aria-hidden="true"></i></span>
+                    <h1>@c.Name</h1>
+                </div>
+                @if (!string.IsNullOrEmpty(c.Description))
+                {
+                    <p class="category-hero-lead">@c.Description</p>
+                }
+            </div>
+            <div class="col-lg-5">
+                <form class="category-search" method="get" asp-controller="Providers" asp-action="Index" data-clean-empty>
+                    <input type="hidden" name="categoryId" value="@c.Id" />
+                    <label for="category-area" class="form-label">ابحث عن @c.Name في منطقتك</label>
+                    <div class="d-flex gap-2">
+                        <div class="input-icon flex-grow-1">
+                            <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                            <select id="category-area" name="areaId" class="form-select">
+                                <option value="">كل المناطق</option>
+                                @foreach (var city in Model.Cities)
+                                {
+                                    <optgroup label="@city.Name">
+                                        @foreach (var area in city.Areas)
+                                        {
+                                            <option value="@area.Id">@area.Name</option>
+                                        }
+                                    </optgroup>
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span class="btn-label">ابحث</span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section pt-4 pt-lg-5 pb-4">
+    <div class="container">
+        <div class="section-heading">
+            <h2 class="section-title h3">خدمات @c.Name</h2>
+            <p class="section-subtitle">اختر الخدمة المحددة لعرض مقدميها وأسعارهم.</p>
+        </div>
+        <div class="row g-3">
+            @foreach (var service in c.Services)
+            {
+                <div class="col-sm-6 col-lg-3">
+                    <a class="service-tile" style="--accent: @c.AccentColor" asp-controller="Providers" asp-action="Index" asp-route-serviceId="@service.Id">
+                        <span class="service-tile-name">@service.Name</span>
+                        <span class="service-tile-meta">
+                            @(service.ProvidersCount > 0 ? service.ProvidersCount.ToProvidersCountText() : "لا يوجد مقدمون بعد")
+                            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                        </span>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section pt-4">
+    <div class="container">
+        <div class="section-header-row">
+            <div class="section-heading">
+                <h2 class="section-title h3">مقدمو خدمات @c.Name</h2>
+                <p class="section-subtitle">مقدمو خدمات موثّقون مرتبون حسب التقييم.</p>
+            </div>
+            @if (Model.Providers.TotalCount > Model.Providers.Items.Count)
+            {
+                <a class="link-arrow" href="@allProvidersUrl">عرض الكل (@Model.Providers.TotalCount) <i class="fa-solid fa-arrow-left" aria-hidden="true"></i></a>
+            }
+        </div>
+
+        @if (Model.Providers.Items.Count > 0)
+        {
+            <div class="row g-4">
+                @foreach (var provider in Model.Providers.Items)
+                {
+                    <div class="col-sm-6 col-lg-4 col-xl-3">
+                        <partial name="_ProviderCard" model="provider" />
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <partial name="_EmptyState" model='new EmptyStateViewModel {
+                Icon = c.IconClass,
+                Title = $"لا يوجد مقدمو خدمات {c.Name} بعد",
+                Message = "كن أول من يقدّم خدماته في هذه الفئة، وابدأ باستقبال طلبات العملاء في منطقتك.",
+                ActionText = "انضم كمقدم خدمة",
+                ActionUrl = Url.Action("Register", "Account", new { type = "provider" }) }' />
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/search.js" asp-append-version="true"></script>
+}

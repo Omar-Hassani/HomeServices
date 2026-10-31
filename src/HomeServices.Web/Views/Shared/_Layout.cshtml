@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @using HomeServices.Domain.Entities
 @using HomeServices.Application.Constants
 @inject SignInManager<ApplicationUser> SignInManager
@@ -44,8 +44,8 @@
             <nav class="d-none d-lg-block" aria-label="التنقل الرئيسي">
                 <ul class="main-nav">
                     <li><a asp-controller="Home" asp-action="Index">الرئيسية</a></li>
-                    <li><a href="/#categories">الخدمات</a></li>
-                    <li><a href="/Providers">مقدمو الخدمات</a></li>
+                    <li><a asp-controller="Categories" asp-action="Index">الخدمات</a></li>
+                    <li><a asp-controller="Providers" asp-action="Index">مقدمو الخدمات</a></li>
                     <li><a href="/#how-it-works">كيف نعمل</a></li>
                 </ul>
             </nav>
@@ -104,8 +104,8 @@
         </div>
         <div class="offcanvas-body d-flex flex-column gap-1">
             <a asp-controller="Home" asp-action="Index"><i class="fa-solid fa-house"></i>الرئيسية</a>
-            <a href="/#categories" data-bs-dismiss="offcanvas"><i class="fa-solid fa-grip"></i>الخدمات</a>
-            <a href="/Providers"><i class="fa-solid fa-users"></i>مقدمو الخدمات</a>
+            <a asp-controller="Categories" asp-action="Index"><i class="fa-solid fa-grip"></i>الخدمات</a>
+            <a asp-controller="Providers" asp-action="Index"><i class="fa-solid fa-users"></i>مقدمو الخدمات</a>
             <a href="/#how-it-works" data-bs-dismiss="offcanvas"><i class="fa-solid fa-circle-question"></i>كيف نعمل</a>
             @if (currentUser is null)
             {
@@ -142,8 +142,8 @@
                     <h4>المنصة</h4>
                     <ul class="footer-links">
                         <li><a asp-controller="Home" asp-action="Index">الرئيسية</a></li>
-                        <li><a href="/#categories">الخدمات</a></li>
-                        <li><a href="/Providers">مقدمو الخدمات</a></li>
+                        <li><a asp-controller="Categories" asp-action="Index">الخدمات</a></li>
+                        <li><a asp-controller="Providers" asp-action="Index">مقدمو الخدمات</a></li>
                         <li><a href="/#how-it-works">كيف نعمل</a></li>
                     </ul>
                 </div>

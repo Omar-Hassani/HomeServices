@@ -14,21 +14,29 @@ internal static class ReferenceData
     public static readonly ServiceCategory[] Categories =
     [
         Category(1, "الكهرباء", "electricity", "fa-solid fa-bolt", "#E8A317",
-            "تمديدات كهربائية، إصلاح الأعطال، الإنارة وأنظمة الطاقة الشمسية."),
+            "تمديدات كهربائية، إصلاح الأعطال، الإنارة وأنظمة الطاقة الشمسية.",
+            "كهربائي كهربجي كهرباء تمديدات إنارة ثريات طاقة شمسية ألواح بطاريات انفرتر إنفرتر أمبيرات"),
         Category(2, "السباكة", "plumbing", "fa-solid fa-faucet-drip", "#2D7FF9",
-            "كشف التسريبات، التمديدات الصحية وتركيب الأدوات الصحية."),
+            "كشف التسريبات، التمديدات الصحية وتركيب الأدوات الصحية.",
+            "سباك سمكري سباكة صحية تسريب تسريبات مياه مجاري صرف حنفية خزان سخان"),
         Category(3, "الدهان والديكور", "painting", "fa-solid fa-paint-roller", "#E0567A",
-            "دهان داخلي وخارجي، ديكورات جبسية وورق جدران."),
+            "دهان داخلي وخارجي، ديكورات جبسية وورق جدران.",
+            "دهان دهين طلاء بوية ديكور جبس جبسين ورق جدران"),
         Category(4, "التكييف والتبريد", "ac-refrigeration", "fa-solid fa-snowflake", "#17A2B8",
-            "تركيب وصيانة المكيفات وإصلاح البرادات والمجمدات."),
+            "تركيب وصيانة المكيفات وإصلاح البرادات والمجمدات.",
+            "مكيف مكيفات تكييف تبريد براد برادات ثلاجة فريزر مجمدة غاز"),
         Category(5, "نقل العفش", "furniture-moving", "fa-solid fa-truck-moving", "#7B61FF",
-            "نقل الأثاث وفكه وتركيبه وتغليفه بأمان."),
+            "نقل الأثاث وفكه وتركيبه وتغليفه بأمان.",
+            "نقل عفش أثاث موبيليا ترحيل تغليف فك تركيب شاحنة سوزوكي"),
         Category(6, "الطبخ", "cooking", "fa-solid fa-utensils", "#F2703D",
-            "طباخون وطباخات للطبخ اليومي والولائم وتحضير المونة."),
+            "طباخون وطباخات للطبخ اليومي والولائم وتحضير المونة.",
+            "طباخ طباخة طبخ أكل ولائم عزائم مونة حلويات مطبخ"),
         Category(7, "تنظيف المنازل", "home-cleaning", "fa-solid fa-broom", "#20A779",
-            "تنظيف شامل ودوري، تنظيف السجاد والكنب وما بعد الإكساء."),
+            "تنظيف شامل ودوري، تنظيف السجاد والكنب وما بعد الإكساء.",
+            "تنظيف منظف منظفة عاملة سجاد كنب جلي تعقيم"),
         Category(8, "الصيانة العامة", "general-maintenance", "fa-solid fa-screwdriver-wrench", "#5B6B7F",
-            "نجارة، ألمنيوم وزجاج، تركيب ستائر وأعمال صيانة متنوعة.")
+            "نجارة، ألمنيوم وزجاج، تركيب ستائر وأعمال صيانة متنوعة.",
+            "نجار نجارة ألمنيوم المنيوم زجاج ستائر حداد حدادة صيانة تصليح")
     ];
 
     public static readonly Service[] Services = BuildServices(
@@ -77,7 +85,7 @@ internal static class ReferenceData
 
     public static readonly Area[] Areas = BuildAreas();
 
-    private static ServiceCategory Category(int id, string name, string slug, string icon, string color, string description) => new()
+    private static ServiceCategory Category(int id, string name, string slug, string icon, string color, string description, string keywords) => new()
     {
         Id = id,
         Name = name,
@@ -85,6 +93,7 @@ internal static class ReferenceData
         IconClass = icon,
         AccentColor = color,
         Description = description,
+        SearchKeywords = keywords,
         DisplayOrder = id,
         IsActive = true,
         CreatedAt = SeedDate

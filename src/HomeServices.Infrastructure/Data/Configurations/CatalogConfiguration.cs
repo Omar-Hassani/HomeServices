@@ -12,6 +12,7 @@ public class ServiceCategoryConfiguration : IEntityTypeConfiguration<ServiceCate
         builder.Property(c => c.Name).IsRequired().HasMaxLength(80);
         builder.Property(c => c.Slug).IsRequired().HasMaxLength(80).IsUnicode(false);
         builder.Property(c => c.Description).HasMaxLength(500);
+        builder.Property(c => c.SearchKeywords).HasMaxLength(500);
         builder.Property(c => c.IconClass).IsRequired().HasMaxLength(60).IsUnicode(false);
         builder.Property(c => c.AccentColor).IsRequired().HasMaxLength(7).IsUnicode(false);
         builder.Property(c => c.ImagePath).HasMaxLength(300);

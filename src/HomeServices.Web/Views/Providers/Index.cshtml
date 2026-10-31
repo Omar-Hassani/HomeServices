@@ -1,0 +1,232 @@
+@using HomeServices.Application.DTOs.Providers
+@model HomeServices.Web.ViewModels.Providers.ProvidersIndexViewModel
+@{
+    var q = Model.Query;
+    var criteria = q.ToCriteria();
+    var ratingOptions = new (decimal? Value, string Label)[] { (null, "الكل"), (4.5m, "4.5 فأعلى"), (4m, "4 فأعلى"), (3m, "3 فأعلى") };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/providers.css" asp-append-version="true" />
+}
+
+<form id="search-form" method="get" asp-action="Index" data-clean-empty>
+    <section class="page-hero">
+        <div class="container">
+            <ol class="breadcrumb-hs">
+                <li><a asp-controller="Home" asp-action="Index">الرئيسية</a></li>
+                <li aria-current="page">مقدمو الخدمات</li>
+            </ol>
+            <h1>@Model.Heading</h1>
+            <p>ابحث وقارن بين مقدمي الخدمات الموثّقين حسب الخدمة والمنطقة والسعر والتقييم.</p>
+
+            <div class="search-inline">
+                <div class="input-icon flex-grow-1">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <label for="q" class="visually-hidden">ابحث باسم الخدمة أو مقدم الخدمة</label>
+                    <input id="q" name="q" type="search" class="form-control" value="@q.NormalizedQuery"
+                           placeholder="ابحث باسم الخدمة أو مقدم الخدمة… مثال: سباك، كهربائي" maxlength="100" autocomplete="off" />
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span class="btn-label">بحث</span></button>
+            </div>
+        </div>
+    </section>
+
+    <section class="section pt-4 pt-lg-5">
+        <div class="container">
+            <div class="row g-4">
+                <!-- ===== الفلاتر ===== -->
+                <div class="col-lg-3">
+                    <div class="offcanvas-lg offcanvas-start filters-panel" tabindex="-1" id="filtersPanel" aria-labelledby="filtersPanelLabel">
+                        <div class="offcanvas-header border-bottom">
+                            <h2 class="offcanvas-title h5 mb-0" id="filtersPanelLabel">تصفية النتائج</h2>
+                            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#filtersPanel" aria-label="إغلاق"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                            <div class="filters-card">
+                                <div class="filter-group">
+                                    <h3 class="filter-title"><i class="fa-solid fa-layer-group" aria-hidden="true"></i>الخدمة</h3>
+                                    <label for="categoryId" class="visually-hidden">الفئة</label>
+                                    <select id="categoryId" name="categoryId" class="form-select mb-2" data-parent-select="#serviceId">
+                                        <option value="">كل الفئات</option>
+                                        @foreach (var category in Model.Catalog)
+                                        {
+                                            <option value="@category.Id" selected="@(q.CategoryId == category.Id)">@category.Name</option>
+                                        }
+                                    </select>
+                                    <label for="serviceId" class="visually-hidden">الخدمة</label>
+                                    <select id="serviceId" name="serviceId" class="form-select">
+                                        <option value="">كل الخدمات</option>
+                                        @foreach (var category in Model.Catalog)
+                                        {
+                                            <optgroup label="@category.Name" data-parent="@category.Id">
+                                                @foreach (var service in category.Services)
+                                                {
+                                                    <option value="@service.Id" selected="@(q.ServiceId == service.Id)">@service.Name</option>
+                                                }
+                                            </optgroup>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="filter-group">
+                                    <h3 class="filter-title"><i class="fa-solid fa-location-dot" aria-hidden="true"></i>الموقع</h3>
+                                    <label for="cityId" class="visually-hidden">المحافظة</label>
+                                    <select id="cityId" name="cityId" class="form-select mb-2" data-parent-select="#areaId">
+                                        <option value="">كل المحافظات</option>
+                                        @foreach (var city in Model.Cities)
+                                        {
+                                            <option value="@city.Id" selected="@(q.CityId == city.Id)">@city.Name</option>
+                                        }
+                                    </select>
+                                    <label for="areaId" class="visually-hidden">المنطقة</label>
+                                    <select id="areaId" name="areaId" class="form-select">
+                                        <option value="">كل المناطق</option>
+                                        @foreach (var city in Model.Cities)
+                                        {
+                                            <optgroup label="@city.Name" data-parent="@city.Id">
+                                                @foreach (var area in city.Areas)
+                                                {
+                                                    <option value="@area.Id" selected="@(q.AreaId == area.Id)">@area.Name</option>
+                                                }
+                                            </optgroup>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="filter-group">
+                                    <h3 class="filter-title"><i class="fa-solid fa-tags" aria-hidden="true"></i>السعر (ل.س)</h3>
+                                    <div class="price-range">
+                                        <label for="minPrice" class="visually-hidden">أقل سعر</label>
+                                        <input id="minPrice" name="minPrice" type="number" min="0" step="500" inputmode="numeric" class="form-control" placeholder="من" value="@criteria.MinPrice?.ToString("0")" />
+                                        <span aria-hidden="true">—</span>
+                                        <label for="maxPrice" class="visually-hidden">أعلى سعر</label>
+                                        <input id="maxPrice" name="maxPrice" type="number" min="0" step="500" inputmode="numeric" class="form-control" placeholder="إلى" value="@criteria.MaxPrice?.ToString("0")" />
+                                    </div>
+                                </div>
+
+                                <div class="filter-group">
+                                    <h3 class="filter-title"><i class="fa-solid fa-star" aria-hidden="true"></i>التقييم</h3>
+                                    <div class="rating-options" role="radiogroup" aria-label="أقل تقييم">
+                                        @foreach (var option in ratingOptions)
+                                        {
+                                            var id = $"rating-{option.Value?.ToRatingText() ?? "all"}";
+                                            <input class="btn-check" type="radio" name="minRating" id="@id" value="@(option.Value?.ToRatingText() ?? string.Empty)" checked="@(criteria.MinRating == option.Value)" />
+                                            <label class="rating-option" for="@id">
+                                                @if (option.Value is not null)
+                                                {
+                                                    <i class="fa-solid fa-star" aria-hidden="true"></i>
+                                                }
+                                                @option.Label
+                                            </label>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="filter-group">
+                                    <div class="form-check form-switch m-0">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="available" name="available" value="true" checked="@q.Available" />
+                                        <label class="form-check-label fw-semibold" for="available">المتاحون الآن فقط</label>
+                                    </div>
+                                </div>
+
+                                <div class="filter-actions">
+                                    <button type="submit" class="btn btn-primary w-100"><span class="btn-label">تطبيق الفلاتر</span></button>
+                                    @if (q.HasFilters)
+                                    {
+                                        <a class="btn btn-ghost w-100" href="@Model.ClearFiltersUrl">مسح الكل</a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== النتائج ===== -->
+                <div class="col-lg-9">
+                    <div class="results-toolbar">
+                        <div class="results-count" aria-live="polite">
+                            @if (Model.Results.TotalCount > 0)
+                            {
+                                <strong>@Model.Results.TotalCount.ToProvidersCountText()</strong>
+                            }
+                            else
+                            {
+                                <strong>لا توجد نتائج</strong>
+                            }
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-soft btn-sm d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#filtersPanel" aria-controls="filtersPanel">
+                                <i class="fa-solid fa-sliders" aria-hidden="true"></i>الفلاتر
+                                @if (Model.ActiveFilters.Count > 0)
+                                {
+                                    <span class="badge rounded-pill text-bg-primary">@Model.ActiveFilters.Count</span>
+                                }
+                            </button>
+                            <label for="sort" class="visually-hidden">ترتيب حسب</label>
+                            <div class="input-icon sort-select">
+                                <i class="fa-solid fa-arrow-down-wide-short" aria-hidden="true"></i>
+                                <select id="sort" name="sort" class="form-select form-select-sm" data-auto-submit>
+                                    @foreach (var sort in Enum.GetValues<ProviderSortOrder>())
+                                    {
+                                        <option value="@(sort == ProviderSortOrder.Recommended ? "" : sort.ToString())" selected="@(criteria.Sort == sort)">@sort.GetDisplayName()</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (Model.ActiveFilters.Count > 0)
+                    {
+                        <div class="active-filters">
+                            @foreach (var filter in Model.ActiveFilters)
+                            {
+                                <span class="filter-chip">
+                                    @filter.Label
+                                    <a href="@filter.RemoveUrl" aria-label="إزالة فلتر @filter.Label"><i class="fa-solid fa-xmark" aria-hidden="true"></i></a>
+                                </span>
+                            }
+                            <a class="clear-filters" href="@Model.ClearFiltersUrl">مسح الكل</a>
+                        </div>
+                    }
+
+                    @if (Model.Results.Items.Count > 0)
+                    {
+                        <div class="row g-4">
+                            @foreach (var provider in Model.Results.Items)
+                            {
+                                <div class="col-sm-6 col-xl-4">
+                                    <partial name="_ProviderCard" model="provider" />
+                                </div>
+                            }
+                        </div>
+
+                        <partial name="_Pagination" model="Model.Pagination" />
+                    }
+                    else if (q.HasFilters)
+                    {
+                        <partial name="_EmptyState" model='new EmptyStateViewModel {
+                            Icon = "fa-solid fa-magnifying-glass",
+                            Title = "لم نجد مقدمي خدمات مطابقين",
+                            Message = "جرّب توسيع نطاق البحث: اختر منطقة أخرى، أو أزل بعض الفلاتر، أو ابحث بكلمة مختلفة.",
+                            ActionText = "مسح جميع الفلاتر",
+                            ActionUrl = Model.ClearFiltersUrl }' />
+                    }
+                    else
+                    {
+                        <partial name="_EmptyState" model='new EmptyStateViewModel {
+                            Icon = "fa-solid fa-user-plus",
+                            Title = "لا يوجد مقدمو خدمات موثّقون بعد",
+                            Message = "المنصة في بدايتها. إن كنت محترفاً في مجالك، سجّل الآن ليظهر ملفك هنا أمام العملاء.",
+                            ActionText = "انضم كمقدم خدمة",
+                            ActionUrl = Url.Action("Register", "Account", new { type = "provider" }) }' />
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+
+@section Scripts {
+    <script src="~/js/search.js" asp-append-version="true"></script>
+}

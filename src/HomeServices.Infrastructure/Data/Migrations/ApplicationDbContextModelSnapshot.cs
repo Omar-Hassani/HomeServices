@@ -1606,6 +1606,10 @@ namespace HomeServices.Infrastructure.Data.Migrations
                     b.Property<int?>("ParentCategoryId")
                         .HasColumnType("int");
 
+                    b.Property<string>("SearchKeywords")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(80)
@@ -1635,6 +1639,7 @@ namespace HomeServices.Infrastructure.Data.Migrations
                             IconClass = "fa-solid fa-bolt",
                             IsActive = true,
                             Name = "الكهرباء",
+                            SearchKeywords = "كهربائي كهربجي كهرباء تمديدات إنارة ثريات طاقة شمسية ألواح بطاريات انفرتر إنفرتر أمبيرات",
                             Slug = "electricity"
                         },
                         new
@@ -1647,6 +1652,7 @@ namespace HomeServices.Infrastructure.Data.Migrations
                             IconClass = "fa-solid fa-faucet-drip",
                             IsActive = true,
                             Name = "السباكة",
+                            SearchKeywords = "سباك سمكري سباكة صحية تسريب تسريبات مياه مجاري صرف حنفية خزان سخان",
                             Slug = "plumbing"
                         },
                         new
@@ -1659,6 +1665,7 @@ namespace HomeServices.Infrastructure.Data.Migrations
                             IconClass = "fa-solid fa-paint-roller",
                             IsActive = true,
                             Name = "الدهان والديكور",
+                            SearchKeywords = "دهان دهين طلاء بوية ديكور جبس جبسين ورق جدران",
                             Slug = "painting"
                         },
                         new
@@ -1671,6 +1678,7 @@ namespace HomeServices.Infrastructure.Data.Migrations
                             IconClass = "fa-solid fa-snowflake",
                             IsActive = true,
                             Name = "التكييف والتبريد",
+                            SearchKeywords = "مكيف مكيفات تكييف تبريد براد برادات ثلاجة فريزر مجمدة غاز",
                             Slug = "ac-refrigeration"
                         },
                         new
@@ -1683,6 +1691,7 @@ namespace HomeServices.Infrastructure.Data.Migrations
                             IconClass = "fa-solid fa-truck-moving",
                             IsActive = true,
                             Name = "نقل العفش",
+                            SearchKeywords = "نقل عفش أثاث موبيليا ترحيل تغليف فك تركيب شاحنة سوزوكي",
                             Slug = "furniture-moving"
                         },
                         new
@@ -1695,6 +1704,7 @@ namespace HomeServices.Infrastructure.Data.Migrations
                             IconClass = "fa-solid fa-utensils",
                             IsActive = true,
                             Name = "الطبخ",
+                            SearchKeywords = "طباخ طباخة طبخ أكل ولائم عزائم مونة حلويات مطبخ",
                             Slug = "cooking"
                         },
                         new
@@ -1707,6 +1717,7 @@ namespace HomeServices.Infrastructure.Data.Migrations
                             IconClass = "fa-solid fa-broom",
                             IsActive = true,
                             Name = "تنظيف المنازل",
+                            SearchKeywords = "تنظيف منظف منظفة عاملة سجاد كنب جلي تعقيم",
                             Slug = "home-cleaning"
                         },
                         new
@@ -1719,6 +1730,7 @@ namespace HomeServices.Infrastructure.Data.Migrations
                             IconClass = "fa-solid fa-screwdriver-wrench",
                             IsActive = true,
                             Name = "الصيانة العامة",
+                            SearchKeywords = "نجار نجارة ألمنيوم المنيوم زجاج ستائر حداد حدادة صيانة تصليح",
                             Slug = "general-maintenance"
                         });
                 });

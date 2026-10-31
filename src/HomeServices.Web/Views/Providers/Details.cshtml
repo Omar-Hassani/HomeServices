@@ -1,0 +1,299 @@
+@using HomeServices.Domain.Enums
+@model HomeServices.Web.ViewModels.Providers.ProviderDetailsViewModel
+@{
+    var p = Model.Provider;
+    ViewData["Title"] = p.FullName;
+    ViewData["Description"] = string.IsNullOrWhiteSpace(p.Headline) ? $"{p.FullName} على HomeServices" : $"{p.FullName} - {p.Headline}";
+    var requestUrl = $"/Booking/Create?providerId={p.Id}";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/providers.css" asp-append-version="true" />
+}
+
+<section class="page-hero provider-hero">
+    <div class="container">
+        <ol class="breadcrumb-hs">
+            <li><a asp-controller="Home" asp-action="Index">الرئيسية</a></li>
+            <li><a asp-controller="Providers" asp-action="Index">مقدمو الخدمات</a></li>
+            <li aria-current="page">@p.FullName</li>
+        </ol>
+
+        @if (!p.IsPubliclyVisible)
+        {
+            <div class="preview-banner" role="status">
+                <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                <div>
+                    <strong>معاينة: هذا الملف غير ظاهر للعملاء حالياً</strong>
+                    <span>حالة الملف: @p.VerificationStatus.GetDisplayName(). يظهر الملف في البحث فقط بعد توثيقه من إدارة المنصة.</span>
+                </div>
+            </div>
+        }
+
+        <div class="profile-header">
+            <div class="profile-avatar">
+                @if (!string.IsNullOrEmpty(p.ProfileImagePath))
+                {
+                    <img class="avatar" src="@p.ProfileImagePath" alt="@p.FullName" />
+                }
+                else
+                {
+                    <span class="avatar" aria-hidden="true">@p.FullName.ToInitials()</span>
+                }
+                <span class="availability-dot @(p.IsAvailable ? "is-available" : null)"></span>
+            </div>
+
+            <div class="profile-info">
+                <h1>
+                    @p.FullName
+                    @if (p.VerificationStatus == VerificationStatus.Approved)
+                    {
+                        <span class="verified-badge"><i class="fa-solid fa-circle-check" aria-hidden="true"></i>موثّق</span>
+                    }
+                </h1>
+                @if (!string.IsNullOrWhiteSpace(p.Headline))
+                {
+                    <p class="profile-headline">@p.Headline</p>
+                }
+                <div class="provider-tags mt-3">
+                    @if (!string.IsNullOrEmpty(p.CityName))
+                    {
+                        <span class="tag"><i class="fa-solid fa-location-dot" aria-hidden="true"></i>@p.CityName</span>
+                    }
+                    <span class="tag"><i class="fa-solid fa-briefcase" aria-hidden="true"></i>@p.YearsOfExperience.ToYearsOfExperienceText()</span>
+                    <span class="tag"><i class="fa-regular fa-calendar" aria-hidden="true"></i>على المنصة منذ @p.MemberSince.ToLocalTime().ToString("MMMM yyyy")</span>
+                    <span class="tag @(p.IsAvailable ? "tag-success" : null)">
+                        <i class="fa-solid fa-circle" aria-hidden="true"></i>@(p.IsAvailable ? "متاح لاستقبال الطلبات" : "غير متاح حالياً")
+                    </span>
+                </div>
+            </div>
+
+            <div class="profile-rating">
+                @if (p.ReviewsCount > 0)
+                {
+                    <strong>@p.AverageRating.ToRatingText()</strong>
+                    <star-rating value="@p.AverageRating" />
+                    <span class="rating-caption">@p.ReviewsCount.ToReviewsCountText()</span>
+                }
+                else
+                {
+                    <span class="tag tag-accent"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>جديد على المنصة</span>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section pt-4 pt-lg-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <!-- نبذة -->
+                <article class="detail-section">
+                    <h2><i class="fa-regular fa-user" aria-hidden="true"></i>نبذة عن مقدم الخدمة</h2>
+                    @if (!string.IsNullOrWhiteSpace(p.Bio))
+                    {
+                        <p class="bio">@p.Bio</p>
+                    }
+                    else
+                    {
+                        <p class="text-secondary mb-0">لم يضف مقدم الخدمة نبذة تعريفية بعد.</p>
+                    }
+                </article>
+
+                <!-- الخدمات والأسعار -->
+                <article class="detail-section">
+                    <h2><i class="fa-solid fa-list-check" aria-hidden="true"></i>الخدمات والأسعار</h2>
+                    @if (p.Services.Count > 0)
+                    {
+                        foreach (var group in Model.ServicesByCategory)
+                        {
+                            var first = group.First();
+                            <div class="service-group" style="--accent: @first.CategoryAccentColor">
+                                <h3><span class="service-group-icon"><i class="@first.CategoryIcon" aria-hidden="true"></i></span>@group.Key</h3>
+                                <ul class="service-list">
+                                    @foreach (var service in group)
+                                    {
+                                        <li>
+                                            <div>
+                                                <strong>@service.ServiceName</strong>
+                                                @if (!string.IsNullOrWhiteSpace(service.Notes))
+                                                {
+                                                    <small>@service.Notes</small>
+                                                }
+                                            </div>
+                                            <div class="service-price">
+                                                <span>@service.Price.ToPrice(service.PriceUnit)</span>
+                                                <a class="btn btn-soft btn-sm" href="@requestUrl&serviceId=@service.ServiceId">اطلب</a>
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                        <p class="price-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>الأسعار تقديرية، ويُتفق على السعر النهائي مع مقدم الخدمة حسب طبيعة العمل.</p>
+                    }
+                    else
+                    {
+                        <p class="text-secondary mb-0">لم يحدد مقدم الخدمة خدماته وأسعاره بعد.</p>
+                    }
+                </article>
+
+                <!-- مناطق العمل -->
+                <article class="detail-section">
+                    <h2><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>مناطق العمل</h2>
+                    @if (p.Areas.Count > 0)
+                    {
+                        <div class="areas-list">
+                            @foreach (var group in p.Areas)
+                            {
+                                <div class="area-group">
+                                    <strong>@group.CityName</strong>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @foreach (var area in group.Areas)
+                                        {
+                                            <span class="tag">@area</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-secondary mb-0">لم يحدد مقدم الخدمة مناطق عمله بعد.</p>
+                    }
+                </article>
+
+                <!-- معرض الأعمال -->
+                @if (p.Portfolio.Count > 0)
+                {
+                    <article class="detail-section">
+                        <h2><i class="fa-regular fa-images" aria-hidden="true"></i>معرض الأعمال</h2>
+                        <div class="portfolio-grid">
+                            @foreach (var image in p.Portfolio)
+                            {
+                                <figure>
+                                    <img src="@image.ImagePath" alt="@(image.Caption ?? "من أعمال " + p.FullName)" loading="lazy" />
+                                    @if (!string.IsNullOrWhiteSpace(image.Caption))
+                                    {
+                                        <figcaption>@image.Caption</figcaption>
+                                    }
+                                </figure>
+                            }
+                        </div>
+                    </article>
+                }
+
+                <!-- التقييمات -->
+                <article class="detail-section" id="reviews">
+                    <h2><i class="fa-regular fa-star" aria-hidden="true"></i>تقييمات العملاء</h2>
+                    @if (Model.TotalVisibleReviews > 0)
+                    {
+                        <div class="rating-summary">
+                            <div class="rating-big">
+                                <strong>@p.AverageRating.ToRatingText()</strong>
+                                <star-rating value="@p.AverageRating" />
+                                <span class="rating-caption">@p.ReviewsCount.ToReviewsCountText()</span>
+                            </div>
+                            <div class="rating-bars">
+                                @for (var stars = 5; stars >= 1; stars--)
+                                {
+                                    <div class="rating-bar-row">
+                                        <span>@stars <i class="fa-solid fa-star" aria-hidden="true"></i></span>
+                                        <div class="rating-bar"><span style="width: @(Model.RatingPercentage(stars))%"></span></div>
+                                        <span class="count">@p.RatingBreakdown[stars - 1]</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="review-list">
+                            @foreach (var review in p.RecentReviews)
+                            {
+                                <div class="review-item">
+                                    <div class="review-head">
+                                        <span class="avatar" style="--avatar-size: 40px" aria-hidden="true">@review.CustomerDisplayName.ToInitials()</span>
+                                        <div>
+                                            <strong>@review.CustomerDisplayName</strong>
+                                            <small>@review.ServiceName · @review.CreatedAt.ToLocalTime().ToString("d MMMM yyyy")</small>
+                                        </div>
+                                        <star-rating value="@review.Rating" />
+                                    </div>
+                                    @if (!string.IsNullOrWhiteSpace(review.Comment))
+                                    {
+                                        <p>@review.Comment</p>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="reviews-empty">
+                            <i class="fa-regular fa-comment-dots" aria-hidden="true"></i>
+                            <div>
+                                <strong>لا توجد تقييمات بعد</strong>
+                                <span>تظهر التقييمات هنا بعد أن يُتم العملاء طلباتهم مع مقدم الخدمة.</span>
+                            </div>
+                        </div>
+                    }
+                </article>
+            </div>
+
+            <!-- بطاقة الطلب الجانبية -->
+            <div class="col-lg-4">
+                <aside class="booking-card">
+                    <div class="booking-price">
+                        @if (p.StartingPrice is decimal startingPrice)
+                        {
+                            <small>الأسعار تبدأ من</small>
+                            <strong>@startingPrice.ToPrice()</strong>
+                        }
+                        else
+                        {
+                            <small>السعر</small>
+                            <strong>حسب الطلب</strong>
+                        }
+                    </div>
+
+                    <div class="booking-stats">
+                        <div><strong>@p.CompletedOrdersCount</strong><span>الطلبات المكتملة</span></div>
+                        <div><strong>@p.ReviewsCount</strong><span>التقييمات</span></div>
+                        <div><strong>@p.YearsOfExperience</strong><span>سنوات الخبرة</span></div>
+                    </div>
+
+                    @if (p.IsPubliclyVisible && p.IsAvailable && p.Services.Count > 0)
+                    {
+                        <a class="btn btn-accent btn-lg w-100" href="@requestUrl">
+                            <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>اطلب الخدمة الآن
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-soft btn-lg w-100" disabled>
+                            <i class="fa-solid fa-clock" aria-hidden="true"></i>غير متاح للطلب حالياً
+                        </button>
+                    }
+
+                    <ul class="booking-points">
+                        <li><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>بياناتك لا تُشارك إلا مع مقدم الخدمة الذي تطلبه</li>
+                        <li><i class="fa-solid fa-route" aria-hidden="true"></i>تابع حالة طلبك خطوة بخطوة</li>
+                        <li><i class="fa-solid fa-star-half-stroke" aria-hidden="true"></i>قيّم الخدمة بعد إتمامها</li>
+                    </ul>
+                </aside>
+            </div>
+        </div>
+    </div>
+</section>
+
+@if (p.IsPubliclyVisible && p.IsAvailable && p.Services.Count > 0)
+{
+    <div class="mobile-booking-bar d-lg-none">
+        <div class="price-from">
+            <small>@(p.StartingPrice.HasValue ? "يبدأ من" : "السعر")</small>
+            <strong>@(p.StartingPrice?.ToPrice() ?? "حسب الطلب")</strong>
+        </div>
+        <a class="btn btn-accent" href="@requestUrl">اطلب الخدمة</a>
+    </div>
+}

@@ -1,0 +1,35 @@
+@model IReadOnlyList<CategoryDto>
+@{
+    ViewData["Title"] = "فئات الخدمات";
+}
+
+<section class="page-hero">
+    <div class="container">
+        <ol class="breadcrumb-hs">
+            <li><a asp-controller="Home" asp-action="Index">الرئيسية</a></li>
+            <li aria-current="page">الخدمات</li>
+        </ol>
+        <h1>فئات الخدمات المنزلية</h1>
+        <p>اختر الفئة لتتعرف على خدماتها ومقدمي الخدمات فيها.</p>
+    </div>
+</section>
+
+<section class="section pt-4 pt-lg-5">
+    <div class="container">
+        @if (Model.Count > 0)
+        {
+            <div class="row g-3 g-md-4">
+                @for (var i = 0; i < Model.Count; i++)
+                {
+                    <div class="col-6 col-md-4 col-xl-3" data-reveal style="--reveal-delay: @((i % 4) * 70)ms">
+                        <partial name="_CategoryCard" model="Model[i]" />
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <partial name="_EmptyState" model='new EmptyStateViewModel { Icon = "fa-solid fa-layer-group", Title = "لا توجد فئات خدمات حالياً", Message = "ستظهر فئات الخدمات هنا فور إضافتها من إدارة المنصة." }' />
+        }
+    </div>
+</section>

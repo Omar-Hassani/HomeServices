@@ -494,7 +494,13 @@
 .price-from strong {
     font-family: var(--hs-font-heading);
     color: var(--hs-ink);
-    font-size: .98rem;
+    font-size: .92rem;
+    white-space: nowrap;
+}
+
+.provider-footer .btn {
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 /* ---------- التقييم بالنجوم ---------- */
@@ -716,6 +722,143 @@
     background-clip: text;
     color: transparent;
     margin-bottom: 1rem;
+}
+
+/* ---------- رأس الصفحات الداخلية ---------- */
+.page-hero {
+    position: relative;
+    padding-block: clamp(2rem, 4vw, 3rem) clamp(1.5rem, 3vw, 2.25rem);
+    background:
+        radial-gradient(700px 300px at 90% 0%, rgba(var(--hs-primary-rgb), .08), transparent 60%),
+        radial-gradient(500px 260px at 5% 100%, rgba(var(--hs-accent-rgb), .07), transparent 60%);
+    border-bottom: 1px solid var(--hs-line);
+}
+
+.page-hero h1 {
+    font-size: clamp(1.6rem, 3.2vw, 2.25rem);
+    font-weight: 700;
+    margin-bottom: .4rem;
+}
+
+.page-hero p {
+    color: var(--hs-muted);
+    margin: 0;
+}
+
+.breadcrumb-hs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .4rem;
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
+    font-size: .85rem;
+    color: var(--hs-muted);
+}
+
+.breadcrumb-hs li + li::before {
+    content: "\f053";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: .6rem;
+    margin-inline-end: .4rem;
+    color: var(--hs-subtle);
+}
+
+.breadcrumb-hs a {
+    color: var(--hs-muted);
+}
+
+.breadcrumb-hs a:hover {
+    color: var(--hs-primary);
+}
+
+.breadcrumb-hs [aria-current] {
+    color: var(--hs-ink);
+    font-weight: 500;
+}
+
+/* ---------- التنقل بين الصفحات ---------- */
+.pagination-hs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    margin-top: 2.5rem;
+    flex-wrap: wrap;
+}
+
+.page-numbers {
+    display: flex;
+    gap: .35rem;
+}
+
+.page-link-hs {
+    min-width: 42px;
+    height: 42px;
+    padding-inline: .8rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    border-radius: var(--hs-radius-sm);
+    border: 1px solid var(--hs-line);
+    background: var(--hs-surface);
+    color: var(--hs-body);
+    font-weight: 600;
+    font-size: .9rem;
+    transition: all var(--hs-duration) var(--hs-ease);
+}
+
+.page-link-hs:hover {
+    border-color: var(--hs-primary-100);
+    background: var(--hs-primary-50);
+    color: var(--hs-primary);
+}
+
+.page-link-hs.is-current {
+    background: var(--hs-primary);
+    border-color: var(--hs-primary);
+    color: #fff;
+    box-shadow: var(--hs-shadow-primary);
+}
+
+.page-gap {
+    align-self: center;
+    color: var(--hs-subtle);
+    padding-inline: .25rem;
+}
+
+/* ---------- رقائق الفلاتر النشطة ---------- */
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding-block: .3rem;
+    padding-inline: .8rem .45rem;
+    border-radius: var(--hs-radius-pill);
+    background: var(--hs-primary-50);
+    border: 1px solid var(--hs-primary-100);
+    color: var(--hs-primary-700);
+    font-size: .82rem;
+    font-weight: 500;
+}
+
+.filter-chip a {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(var(--hs-primary-rgb), .12);
+    color: var(--hs-primary-700);
+    font-size: .65rem;
+}
+
+.filter-chip a:hover {
+    background: var(--hs-primary);
+    color: #fff;
 }
 
 /* ---------- عناصر النماذج ---------- */
