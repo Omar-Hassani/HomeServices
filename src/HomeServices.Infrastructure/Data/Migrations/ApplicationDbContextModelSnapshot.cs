@@ -1790,6 +1790,7 @@ namespace HomeServices.Infrastructure.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
+                        .IsConcurrencyToken()
                         .HasColumnType("int");
 
                     b.Property<int>("TimeSlot")

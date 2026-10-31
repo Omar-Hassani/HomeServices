@@ -35,7 +35,9 @@ internal sealed class ProviderProfileService(ApplicationDbContext db, IFileStora
                 p.CompletedOrdersCount,
                 ServicesCount = p.Services.Count(s => s.Service.IsActive),
                 AreasCount = p.ServiceAreas.Count,
-                PortfolioCount = p.PortfolioImages.Count
+                PortfolioCount = p.PortfolioImages.Count,
+                PendingOrdersCount = p.Requests.Count(r => r.Status == OrderStatus.Pending),
+                ActiveOrdersCount = p.Requests.Count(r => r.Status == OrderStatus.Accepted || r.Status == OrderStatus.InProgress)
             })
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -58,6 +60,8 @@ internal sealed class ProviderProfileService(ApplicationDbContext db, IFileStora
             ServicesCount = data.ServicesCount,
             AreasCount = data.AreasCount,
             PortfolioCount = data.PortfolioCount,
+            PendingOrdersCount = data.PendingOrdersCount,
+            ActiveOrdersCount = data.ActiveOrdersCount,
             Checklist = BuildChecklist(data.Headline, data.Bio, data.CityId, data.ServicesCount, data.AreasCount,
                 data.ProfileImagePath, data.PortfolioCount)
         };
@@ -66,7 +70,9 @@ internal sealed class ProviderProfileService(ApplicationDbContext db, IFileStora
     public async Task<ProviderNavInfo?> GetNavInfoAsync(string userId, CancellationToken cancellationToken = default)
     {
         var dashboard = await GetDashboardAsync(userId, cancellationToken);
-        return dashboard is null ? null : new ProviderNavInfo(dashboard.ProfileId, dashboard.VerificationStatus, dashboard.CompletionPercent);
+        return dashboard is null
+            ? null
+            : new ProviderNavInfo(dashboard.ProfileId, dashboard.VerificationStatus, dashboard.CompletionPercent, dashboard.PendingOrdersCount);
     }
 
     public async Task<ProviderProfileEditDto?> GetProfileForEditAsync(string userId, CancellationToken cancellationToken = default)

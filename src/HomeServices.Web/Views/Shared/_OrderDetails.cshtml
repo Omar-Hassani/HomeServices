@@ -1,0 +1,246 @@
+@using HomeServices.Domain.Enums
+@model HomeServices.Web.ViewModels.Orders.OrderPageViewModel
+@{
+    var o = Model.Order;
+    var steps = new (OrderStatus Status, string Label, string Icon)[]
+    {
+        (OrderStatus.Pending, "تم الإرسال", "fa-paper-plane"),
+        (OrderStatus.Accepted, "مقبول", "fa-thumbs-up"),
+        (OrderStatus.InProgress, "قيد التنفيذ", "fa-screwdriver-wrench"),
+        (OrderStatus.Completed, "مكتمل", "fa-flag-checkered")
+    };
+    var isClosed = o.Status is OrderStatus.Rejected or OrderStatus.Cancelled;
+    var currentStep = o.Status switch
+    {
+        OrderStatus.Accepted => 1,
+        OrderStatus.InProgress => 2,
+        OrderStatus.Completed => 3,
+        _ => 0
+    };
+    // آخر مرحلة وصلها الطلب قبل إغلاقه، لعرض المسار بدقة
+    if (isClosed)
+    {
+        currentStep = o.History.Any(h => h.ToStatus == OrderStatus.Accepted) ? 1 : 0;
+    }
+}
+
+<div class="order-header">
+    <a class="back-link" href="@Model.BackUrl"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>كل الطلبات</a>
+    <div class="order-header-main">
+        <div>
+            <h1>@o.ServiceName</h1>
+            <p>طلب رقم <span dir="ltr" class="fw-semibold">@o.OrderNumber</span> · أُرسل في @o.CreatedAt.ToSyriaDateTime()</p>
+        </div>
+        <order-status value="@o.Status" />
+    </div>
+</div>
+
+@if (Model.IsNew)
+{
+    <div class="status-card is-approved order-created">
+        <span class="status-card-icon"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i></span>
+        <div>
+            <h2>تم إرسال طلبك إلى @o.CounterpartName</h2>
+            <p>سيراجع مقدم الخدمة طلبك ويرد عليك بالقبول أو الرفض. بعد القبول ستظهر لك بيانات التواصل معه هنا.</p>
+        </div>
+    </div>
+}
+
+@if (isClosed)
+{
+    <div class="status-card is-rejected">
+        <span class="status-card-icon"><i class="fa-solid @(o.Status == OrderStatus.Rejected ? "fa-circle-xmark" : "fa-ban")" aria-hidden="true"></i></span>
+        <div>
+            <h2>@(o.Status == OrderStatus.Rejected ? "تم رفض الطلب" : "تم إلغاء الطلب")</h2>
+            @if (!string.IsNullOrWhiteSpace(o.CancellationReason))
+            {
+                <p><strong>السبب:</strong> @o.CancellationReason</p>
+            }
+            @if (o.ViewerIsCustomer)
+            {
+                <a class="btn btn-sm btn-primary mt-2" href="@Url.Action("Index", "Providers", new { area = "" })">ابحث عن مقدم خدمة آخر</a>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <ol class="order-stepper" aria-label="مراحل الطلب">
+        @for (var i = 0; i < steps.Length; i++)
+        {
+            var state = i < currentStep || (i == currentStep && o.Status == OrderStatus.Completed) ? "is-done" : i == currentStep ? "is-current" : null;
+            <li class="@state" aria-current="@(state == "is-current" ? "step" : null)">
+                <span class="stepper-dot"><i class="fa-solid @(state == "is-done" ? "fa-check" : steps[i].Icon)" aria-hidden="true"></i></span>
+                <span class="stepper-label">@steps[i].Label</span>
+            </li>
+        }
+    </ol>
+}
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="panel mb-4">
+            <div class="panel-header"><h2>تفاصيل الطلب</h2></div>
+            <dl class="order-facts">
+                <div>
+                    <dt><i class="fa-solid fa-toolbox" aria-hidden="true"></i>الخدمة</dt>
+                    <dd>@o.ServiceName <small>(@o.CategoryName)</small></dd>
+                </div>
+                <div>
+                    <dt><i class="fa-regular fa-calendar" aria-hidden="true"></i>الموعد</dt>
+                    <dd>@o.ScheduledDate.ToString("dddd d MMMM yyyy") · @o.TimeSlot.GetDisplayName()</dd>
+                </div>
+                <div>
+                    <dt><i class="fa-solid fa-location-dot" aria-hidden="true"></i>المنطقة</dt>
+                    <dd>@o.AreaName، @o.CityName</dd>
+                </div>
+                <div>
+                    <dt><i class="fa-solid fa-map-pin" aria-hidden="true"></i>العنوان التفصيلي</dt>
+                    <dd>
+                        @if (o.AddressDetails is not null)
+                        {
+                            @o.AddressDetails
+                        }
+                        else
+                        {
+                            <span class="hidden-info"><i class="fa-solid fa-lock" aria-hidden="true"></i>يظهر بعد قبول الطلب</span>
+                        }
+                    </dd>
+                </div>
+                <div>
+                    <dt><i class="fa-solid fa-tags" aria-hidden="true"></i>@(o.Status == OrderStatus.Completed ? "السعر النهائي" : "السعر التقديري")</dt>
+                    <dd>@(o.AgreedPrice is decimal price ? price.ToPrice() : "يُتفق عليه")</dd>
+                </div>
+            </dl>
+            <div class="order-description">
+                <h3>وصف المطلوب</h3>
+                <p>@o.Description</p>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header"><h2>سجل الطلب</h2></div>
+            <ol class="timeline">
+                @foreach (var item in o.History.Reverse())
+                {
+                    <li class="timeline-item">
+                        <span class="timeline-dot"></span>
+                        <div>
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <order-status value="@item.ToStatus" />
+                                <small class="text-secondary">@item.ChangedAt.ToSyriaDateTime()</small>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(item.ChangedByName))
+                            {
+                                <small class="d-block mt-1 text-secondary">بواسطة @item.ChangedByName</small>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(item.Note))
+                            {
+                                <p class="timeline-note">@item.Note</p>
+                            }
+                        </div>
+                    </li>
+                }
+            </ol>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <aside class="order-aside">
+            <div class="panel mb-4">
+                <h2 class="aside-title">@(o.ViewerIsCustomer ? "مقدم الخدمة" : "العميل")</h2>
+                <div class="counterpart">
+                    @if (!string.IsNullOrEmpty(o.CounterpartImagePath))
+                    {
+                        <img class="avatar" src="@o.CounterpartImagePath" alt="" style="--avatar-size: 52px" />
+                    }
+                    else
+                    {
+                        <span class="avatar" style="--avatar-size: 52px" aria-hidden="true">@o.CounterpartName.ToInitials()</span>
+                    }
+                    <div>
+                        <strong>@o.CounterpartName</strong>
+                        @if (o.ViewerIsCustomer)
+                        {
+                            <a href="@Url.Action("Details", "Providers", new { area = "", id = o.ProviderProfileId })" class="small">عرض الملف</a>
+                        }
+                    </div>
+                </div>
+                @if (o.ContactDetailsVisible)
+                {
+                    <a class="contact-line" href="tel:@o.CounterpartPhone" dir="ltr">
+                        <i class="fa-solid fa-phone" aria-hidden="true"></i>@o.CounterpartPhone
+                    </a>
+                }
+                else if (!isClosed)
+                {
+                    <p class="hidden-info mt-3 mb-0">
+                        <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                        @(o.ViewerIsCustomer ? "يظهر رقم مقدم الخدمة بعد قبوله الطلب." : "تظهر بيانات التواصل مع العميل وعنوانه بعد قبولك الطلب.")
+                    </p>
+                }
+            </div>
+
+            @if (o.AvailableActions.Count > 0)
+            {
+                <div class="panel">
+                    <h2 class="aside-title">الإجراءات</h2>
+                    <div class="order-actions">
+                        @foreach (var action in o.AvailableActions)
+                        {
+                            switch (action)
+                            {
+                                case OrderAction.Accept:
+                                    <form action="@Model.ActionUrl" method="post" asp-antiforgery="true" class="action-form">
+                                        <input type="hidden" name="Action" value="@action" />
+                                        <label class="form-label small" for="accept-price">السعر المتفق عليه (اختياري)</label>
+                                        <input id="accept-price" name="Price" type="number" min="1" step="500" class="form-control form-control-sm mb-2"
+                                               placeholder="@(o.AgreedPrice?.ToString("0") ?? "السعر بالليرة السورية")" />
+                                        <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-check" aria-hidden="true"></i><span class="btn-label">قبول الطلب</span></button>
+                                    </form>
+                                    break;
+
+                                case OrderAction.Start:
+                                    <form action="@Model.ActionUrl" method="post" asp-antiforgery="true">
+                                        <input type="hidden" name="Action" value="@action" />
+                                        <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-play" aria-hidden="true"></i><span class="btn-label">بدء التنفيذ</span></button>
+                                    </form>
+                                    break;
+
+                                case OrderAction.Complete:
+                                    <form action="@Model.ActionUrl" method="post" asp-antiforgery="true" class="action-form">
+                                        <input type="hidden" name="Action" value="@action" />
+                                        <label class="form-label small" for="final-price">السعر النهائي (اختياري)</label>
+                                        <input id="final-price" name="Price" type="number" min="1" step="500" class="form-control form-control-sm mb-2"
+                                               placeholder="@(o.AgreedPrice?.ToString("0") ?? "السعر بالليرة السورية")" />
+                                        <button type="submit" class="btn btn-accent w-100"><i class="fa-solid fa-flag-checkered" aria-hidden="true"></i><span class="btn-label">إتمام الطلب</span></button>
+                                    </form>
+                                    break;
+
+                                case OrderAction.Reject:
+                                case OrderAction.CancelByProvider:
+                                case OrderAction.CancelByCustomer:
+                                    var collapseId = $"reason-{action}";
+                                    var reasonRequired = action != OrderAction.CancelByCustomer;
+                                    <button class="btn btn-ghost text-danger w-100" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId">
+                                        <i class="fa-solid @(action == OrderAction.Reject ? "fa-xmark" : "fa-ban")" aria-hidden="true"></i>@action.GetDisplayName()
+                                    </button>
+                                    <div class="collapse" id="@collapseId">
+                                        <form action="@Model.ActionUrl" method="post" asp-antiforgery="true" class="action-form reason-form">
+                                            <input type="hidden" name="Action" value="@action" />
+                                            <label class="form-label small" for="note-@action">@(reasonRequired ? "السبب (مطلوب)" : "السبب (اختياري)")</label>
+                                            <textarea id="note-@action" name="Note" class="form-control form-control-sm mb-2" rows="3" maxlength="500"
+                                                      required="@reasonRequired" minlength="@(reasonRequired ? 5 : 0)"
+                                                      placeholder="@(action == OrderAction.Reject ? "مثال: لا يتوفر موعد في التاريخ المطلوب" : "اكتب سبب الإلغاء")"></textarea>
+                                            <button type="submit" class="btn btn-danger btn-sm w-100"><span class="btn-label">تأكيد @action.GetDisplayName()</span></button>
+                                        </form>
+                                    </div>
+                                    break;
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        </aside>
+    </div>
+</div>

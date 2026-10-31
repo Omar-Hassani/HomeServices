@@ -1,0 +1,29 @@
+@using HomeServices.Web.ViewModels.Orders
+@model OrdersPageViewModel
+@{
+    ViewData["Title"] = "الطلبات";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/orders.css" asp-append-version="true" />
+}
+
+<div class="dash-header">
+    <div>
+        <h1>الطلبات</h1>
+        <p>راجع طلبات العملاء وحدّث حالتها خطوة بخطوة.</p>
+    </div>
+</div>
+
+@if (Model.Counts.Pending > 0)
+{
+    <div class="status-card is-pending">
+        <span class="status-card-icon"><i class="fa-solid fa-bell" aria-hidden="true"></i></span>
+        <div>
+            <h2>طلبات جديدة بانتظار ردك: @Model.Counts.Pending</h2>
+            <p>الرد السريع يرفع فرص اختيارك من العملاء.</p>
+        </div>
+    </div>
+}
+
+<partial name="_OrdersList" model="Model" />

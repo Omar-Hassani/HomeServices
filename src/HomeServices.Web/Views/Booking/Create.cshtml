@@ -1,0 +1,183 @@
+@using HomeServices.Domain.Enums
+@model HomeServices.Web.ViewModels.Orders.BookingFormViewModel
+@{
+    var data = Model.Data!;
+    ViewData["Title"] = $"طلب خدمة من {data.ProviderName}";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/orders.css" asp-append-version="true" />
+}
+
+<section class="page-hero">
+    <div class="container">
+        <ol class="breadcrumb-hs">
+            <li><a asp-controller="Home" asp-action="Index">الرئيسية</a></li>
+            <li><a asp-controller="Providers" asp-action="Details" asp-route-id="@data.ProviderId">@data.ProviderName</a></li>
+            <li aria-current="page">طلب خدمة</li>
+        </ol>
+        <h1>طلب خدمة</h1>
+        <p>املأ تفاصيل طلبك وسيصل مباشرة إلى مقدم الخدمة ليرد عليك.</p>
+    </div>
+</section>
+
+<section class="section pt-4 pt-lg-5">
+    <div class="container">
+        @if (!data.CanBook)
+        {
+            <partial name="_EmptyState" model='new EmptyStateViewModel {
+                Icon = "fa-solid fa-clock",
+                Title = "مقدم الخدمة لا يستقبل طلبات حالياً",
+                Message = "يمكنك تصفح مقدمي خدمات آخرين في نفس المجال أو العودة لاحقاً.",
+                ActionText = "تصفح مقدمي الخدمات",
+                ActionUrl = Url.Action("Index", "Providers") }' />
+        }
+        else
+        {
+            <form asp-action="Create" method="post" novalidate class="row g-4" id="booking-form">
+                <input asp-for="ProviderId" type="hidden" />
+
+                <div class="col-lg-8">
+                    <div asp-validation-summary="ModelOnly" class="form-alert" role="alert"></div>
+
+                    <!-- 1. الخدمة -->
+                    <fieldset class="booking-step">
+                        <legend><span class="step-number">1</span>اختر الخدمة</legend>
+                        <div class="service-options">
+                            @foreach (var service in data.Services)
+                            {
+                                var id = $"service-{service.ServiceId}";
+                                <input class="btn-check" type="radio" asp-for="ServiceId" value="@service.ServiceId" id="@id"
+                                       data-price="@service.Price.ToPrice(service.PriceUnit)" />
+                                <label class="service-option" for="@id">
+                                    <span>
+                                        <strong>@service.Name</strong>
+                                        <small>@service.CategoryName</small>
+                                    </span>
+                                    <span class="service-option-price">@service.Price.ToPrice(service.PriceUnit)</span>
+                                </label>
+                            }
+                        </div>
+                        <span asp-validation-for="ServiceId" class="field-validation-error"></span>
+                    </fieldset>
+
+                    <!-- 2. الموقع -->
+                    <fieldset class="booking-step">
+                        <legend><span class="step-number">2</span>مكان تنفيذ الخدمة</legend>
+                        <div class="mb-3">
+                            <label asp-for="AreaId" class="form-label"></label>
+                            <div class="input-icon">
+                                <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                                <select asp-for="AreaId" class="form-select">
+                                    <option value="">اختر منطقتك</option>
+                                    @foreach (var city in data.Areas)
+                                    {
+                                        <optgroup label="@city.Name">
+                                            @foreach (var area in city.Areas)
+                                            {
+                                                <option value="@area.Id">@area.Name</option>
+                                            }
+                                        </optgroup>
+                                    }
+                                </select>
+                            </div>
+                            <small class="form-hint">تظهر فقط المناطق التي يعمل فيها مقدم الخدمة.</small>
+                            <span asp-validation-for="AreaId" class="field-validation-error"></span>
+                        </div>
+                        <div>
+                            <label asp-for="AddressDetails" class="form-label"></label>
+                            <textarea asp-for="AddressDetails" class="form-control" rows="2" maxlength="300"
+                                      placeholder="الشارع، البناء، الطابق، وأي علامة مميزة تسهّل الوصول"></textarea>
+                            <small class="form-hint"><i class="fa-solid fa-lock" aria-hidden="true"></i> لا يظهر العنوان التفصيلي لمقدم الخدمة إلا بعد قبوله الطلب.</small>
+                            <span asp-validation-for="AddressDetails" class="field-validation-error"></span>
+                        </div>
+                    </fieldset>
+
+                    <!-- 3. الموعد -->
+                    <fieldset class="booking-step">
+                        <legend><span class="step-number">3</span>الموعد المناسب</legend>
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <label asp-for="ScheduledDate" class="form-label"></label>
+                                <input asp-for="ScheduledDate" type="date" class="form-control"
+                                       min="@Model.MinDate.ToString("yyyy-MM-dd")" max="@Model.MaxDate.ToString("yyyy-MM-dd")" />
+                                <span asp-validation-for="ScheduledDate" class="field-validation-error"></span>
+                            </div>
+                            <div class="col-md-7">
+                                <span class="form-label d-block">الفترة المفضلة</span>
+                                <div class="slot-options" role="radiogroup" aria-label="الفترة المفضلة">
+                                    @foreach (var slot in Enum.GetValues<TimeSlot>())
+                                    {
+                                        var slotId = $"slot-{slot}";
+                                        var icon = slot switch { TimeSlot.Morning => "fa-sun", TimeSlot.Afternoon => "fa-cloud-sun", _ => "fa-moon" };
+                                        <input class="btn-check" type="radio" asp-for="TimeSlot" value="@slot" id="@slotId" />
+                                        <label class="slot-option" for="@slotId"><i class="fa-solid @icon" aria-hidden="true"></i>@slot.GetDisplayName()</label>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <!-- 4. الوصف -->
+                    <fieldset class="booking-step">
+                        <legend><span class="step-number">4</span>تفاصيل الطلب</legend>
+                        <label asp-for="Description" class="form-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="5" maxlength="2000"
+                                  placeholder="صف المشكلة أو العمل المطلوب بوضوح: ما الذي حدث؟ منذ متى؟ هل هناك تفاصيل تساعد مقدم الخدمة على التحضير؟"></textarea>
+                        <span asp-validation-for="Description" class="field-validation-error"></span>
+                    </fieldset>
+                </div>
+
+                <!-- ملخص الطلب -->
+                <div class="col-lg-4">
+                    <aside class="booking-summary">
+                        <div class="booking-provider">
+                            @if (!string.IsNullOrEmpty(data.ProviderImagePath))
+                            {
+                                <img class="avatar" src="@data.ProviderImagePath" alt="" style="--avatar-size: 56px" />
+                            }
+                            else
+                            {
+                                <span class="avatar" style="--avatar-size: 56px" aria-hidden="true">@data.ProviderName.ToInitials()</span>
+                            }
+                            <div class="min-w-0">
+                                <strong>@data.ProviderName</strong>
+                                @if (!string.IsNullOrWhiteSpace(data.ProviderHeadline))
+                                {
+                                    <small>@data.ProviderHeadline</small>
+                                }
+                                @if (data.ReviewsCount > 0)
+                                {
+                                    <span class="d-flex align-items-center gap-1 mt-1">
+                                        <star-rating value="@data.AverageRating" />
+                                        <small>@data.AverageRating.ToRatingText()</small>
+                                    </span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="summary-price">
+                            <small>السعر التقديري</small>
+                            <strong data-selected-price>اختر الخدمة</strong>
+                        </div>
+
+                        <button type="submit" class="btn btn-accent btn-lg w-100">
+                            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span class="btn-label">إرسال الطلب</span>
+                        </button>
+
+                        <ul class="booking-points">
+                            <li><i class="fa-solid fa-circle-info" aria-hidden="true"></i>السعر النهائي يُتفق عليه مع مقدم الخدمة حسب طبيعة العمل.</li>
+                            <li><i class="fa-solid fa-bell" aria-hidden="true"></i>ستصلك متابعة لكل تحديث على طلبك.</li>
+                            <li><i class="fa-solid fa-xmark" aria-hidden="true"></i>يمكنك إلغاء الطلب قبل بدء التنفيذ.</li>
+                        </ul>
+                    </aside>
+                </div>
+            </form>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/orders.js" asp-append-version="true"></script>
+}

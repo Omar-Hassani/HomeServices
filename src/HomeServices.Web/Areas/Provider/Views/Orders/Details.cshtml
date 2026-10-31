@@ -1,0 +1,11 @@
+@using HomeServices.Web.ViewModels.Orders
+@model OrderPageViewModel
+@{
+    ViewData["Title"] = $"طلب {Model.Order.OrderNumber}";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/orders.css" asp-append-version="true" />
+}
+
+<partial name="_OrderDetails" model="Model" />

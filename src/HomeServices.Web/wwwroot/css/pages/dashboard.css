@@ -138,51 +138,61 @@
     margin: 0;
 }
 
-/* ---------- بطاقة الحالة ---------- */
-.status-card {
-    --status-color: var(--hs-info);
-    --status-bg: var(--hs-info-100);
-    display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-    padding: 1.25rem 1.4rem;
-    margin-bottom: 1.5rem;
-    border-radius: var(--hs-radius-lg);
-    background: var(--status-bg);
-    border: 1px solid color-mix(in srgb, var(--status-color) 22%, transparent);
+.nav-badge {
+    margin-inline-start: auto;
+    min-width: 22px;
+    height: 22px;
+    padding-inline: .4rem;
+    border-radius: var(--hs-radius-pill);
+    display: inline-grid;
+    place-items: center;
+    background: var(--hs-danger);
+    color: #fff;
+    font-size: .72rem;
+    font-weight: 700;
 }
 
-.status-card.is-approved { --status-color: var(--hs-success); --status-bg: var(--hs-success-100); }
-.status-card.is-pending { --status-color: var(--hs-warning); --status-bg: var(--hs-warning-100); }
-.status-card.is-rejected { --status-color: var(--hs-danger); --status-bg: var(--hs-danger-100); }
+.orders-alert {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+    border-radius: var(--hs-radius-lg);
+    background: linear-gradient(120deg, var(--hs-primary), var(--hs-primary-400));
+    color: #fff;
+    box-shadow: var(--hs-shadow-primary);
+    transition: transform var(--hs-duration) var(--hs-ease);
+}
 
-.status-card-icon {
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
-    flex-shrink: 0;
+.orders-alert:hover {
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.orders-alert strong {
+    display: block;
+}
+
+.orders-alert small {
+    color: rgba(255, 255, 255, .8);
+}
+
+.orders-alert-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
     display: grid;
     place-items: center;
-    font-size: 1.25rem;
-    color: #fff;
-    background: var(--status-color);
+    background: rgba(255, 255, 255, .18);
+    animation: bell-ring 2.5s ease-in-out infinite;
 }
 
-.status-card h2 {
-    font-size: 1.08rem;
-    margin-bottom: .25rem;
-}
-
-.status-card p {
-    margin: 0;
-    font-size: .92rem;
-}
-
-.status-card .status-note {
-    margin: .5rem 0;
-    padding: .6rem .8rem;
-    border-radius: var(--hs-radius-sm);
-    background: rgba(255, 255, 255, .65);
+@keyframes bell-ring {
+    0%, 80%, 100% { transform: rotate(0); }
+    85% { transform: rotate(-12deg); }
+    90% { transform: rotate(10deg); }
+    95% { transform: rotate(-6deg); }
 }
 
 /* ---------- بطاقات الإحصاء ---------- */

@@ -18,13 +18,15 @@ public sealed record ProviderDashboardDto
     public int ServicesCount { get; init; }
     public int AreasCount { get; init; }
     public int PortfolioCount { get; init; }
+    public int PendingOrdersCount { get; init; }
+    public int ActiveOrdersCount { get; init; }
     public IReadOnlyList<ProfileChecklistItem> Checklist { get; init; } = [];
 
     public int CompletionPercent => Checklist.Count == 0 ? 0 : Checklist.Count(i => i.IsDone) * 100 / Checklist.Count;
     public bool IsComplete => Checklist.Where(i => i.IsRequired).All(i => i.IsDone);
 }
 
-public sealed record ProviderNavInfo(int ProfileId, VerificationStatus VerificationStatus, int CompletionPercent);
+public sealed record ProviderNavInfo(int ProfileId, VerificationStatus VerificationStatus, int CompletionPercent, int PendingOrdersCount);
 
 public sealed record ProviderProfileEditDto(string Headline, string? Bio, int YearsOfExperience, int? CityId, bool IsAvailable);
 

@@ -1,0 +1,82 @@
+@using HomeServices.Application.DTOs.Orders
+@using HomeServices.Domain.Enums
+@model HomeServices.Web.ViewModels.Orders.OrdersPageViewModel
+@{
+    var tabs = new (OrderStatusGroup Group, string Label, int Count)[]
+    {
+        (OrderStatusGroup.Active, "النشطة", Model.Counts.Active),
+        (OrderStatusGroup.Completed, "المكتملة", Model.Counts.Completed),
+        (OrderStatusGroup.Closed, "الملغاة والمرفوضة", Model.Counts.Closed),
+        (OrderStatusGroup.All, "الكل", Model.Counts.All)
+    };
+}
+
+<nav class="order-tabs" aria-label="تصفية الطلبات">
+    @foreach (var tab in tabs)
+    {
+        <a href="@Model.TabUrl(tab.Group)" class="@(Model.Group == tab.Group ? "active" : null)" aria-current="@(Model.Group == tab.Group ? "page" : null)">
+            @tab.Label
+            <span class="order-tab-count">@tab.Count</span>
+        </a>
+    }
+</nav>
+
+@if (Model.Orders.Items.Count > 0)
+{
+    <div class="order-list">
+        @foreach (var order in Model.Orders.Items)
+        {
+            <a class="order-card @(order.Status == OrderStatus.Pending && Model.IsProviderView ? "is-new" : null)" href="@Model.DetailsUrl(order.Id)" style="--accent: @order.CategoryAccentColor">
+                <span class="order-icon"><i class="@order.CategoryIcon" aria-hidden="true"></i></span>
+                <div class="order-main">
+                    <div class="order-title">
+                        <strong>@order.ServiceName</strong>
+                        <span class="order-number" dir="ltr">@order.OrderNumber</span>
+                    </div>
+                    <div class="order-meta">
+                        <span>
+                            @if (!string.IsNullOrEmpty(order.CounterpartImagePath))
+                            {
+                                <img class="avatar" src="@order.CounterpartImagePath" alt="" style="--avatar-size: 22px" />
+                            }
+                            else
+                            {
+                                <span class="avatar" style="--avatar-size: 22px" aria-hidden="true">@order.CounterpartName.ToInitials()</span>
+                            }
+                            @order.CounterpartName
+                        </span>
+                        <span><i class="fa-regular fa-calendar" aria-hidden="true"></i>@order.ScheduledDate.ToScheduleText() · @order.TimeSlot.GetDisplayName()</span>
+                        <span><i class="fa-solid fa-location-dot" aria-hidden="true"></i>@order.AreaName، @order.CityName</span>
+                    </div>
+                </div>
+                <div class="order-side">
+                    <order-status value="@order.Status" />
+                    @if (order.AgreedPrice is decimal price)
+                    {
+                        <span class="order-price">@price.ToPrice()</span>
+                    }
+                </div>
+            </a>
+        }
+    </div>
+
+    <partial name="_Pagination" model="Model.Pagination" />
+}
+else
+{
+    var empty = (Model.Group, Model.IsProviderView) switch
+    {
+        (OrderStatusGroup.Active, true) => ("fa-solid fa-inbox", "لا توجد طلبات نشطة", "ستظهر هنا الطلبات الجديدة من العملاء فور إرسالها."),
+        (OrderStatusGroup.Active, false) => ("fa-solid fa-clipboard-list", "لا توجد طلبات نشطة", "ابحث عن مقدم الخدمة المناسب وأرسل طلبك الأول بخطوات بسيطة."),
+        (OrderStatusGroup.Completed, _) => ("fa-solid fa-circle-check", "لا توجد طلبات مكتملة بعد", (string?)null),
+        (OrderStatusGroup.Closed, _) => ("fa-solid fa-ban", "لا توجد طلبات ملغاة أو مرفوضة", (string?)null),
+        _ => ("fa-solid fa-clipboard-list", "لا توجد طلبات بعد", (string?)null)
+    };
+
+    <partial name="_EmptyState" model='new EmptyStateViewModel {
+        Icon = empty.Item1,
+        Title = empty.Item2,
+        Message = empty.Item3,
+        ActionText = Model.IsProviderView ? null : "تصفح مقدمي الخدمات",
+        ActionUrl = Model.IsProviderView ? null : Url.Action("Index", "Providers", new { area = "" }) }' />
+}

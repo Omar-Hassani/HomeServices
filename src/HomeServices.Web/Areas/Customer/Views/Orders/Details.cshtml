@@ -1,0 +1,14 @@
+@model OrderPageViewModel
+@{
+    ViewData["Title"] = $"طلب {Model.Order.OrderNumber}";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/orders.css" asp-append-version="true" />
+}
+
+<section class="section pt-4 pt-lg-5">
+    <div class="container">
+        <partial name="_OrderDetails" model="Model" />
+    </div>
+</section>

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Reflection;
+using HomeServices.Application.Common;
 using HomeServices.Application.Constants;
 using HomeServices.Domain.Enums;
 
@@ -24,6 +25,26 @@ public static class DisplayExtensions
         PriceUnit.Fixed => amount.ToPrice(),
         _ => $"{amount.ToPrice()} {unit.GetDisplayName()}"
     };
+
+    /// <summary>
+    /// تاريخ ووقت بتوقيت سوريا، مثل: 31 تشرين الأول 2026، 14:05
+    /// </summary>
+    public static string ToSyriaDateTime(this DateTime utc) =>
+        SyriaTime.FromUtc(utc).ToString("d MMMM yyyy، HH:mm");
+
+    public static string ToSyriaDate(this DateTime utc) =>
+        SyriaTime.FromUtc(utc).ToString("d MMMM yyyy");
+
+    /// <summary>
+    /// موعد الطلب بصيغة مقروءة: "اليوم" أو "غداً" أو اسم اليوم والتاريخ.
+    /// </summary>
+    public static string ToScheduleText(this DateOnly date)
+    {
+        var today = SyriaTime.Today;
+        if (date == today) return "اليوم";
+        if (date == today.AddDays(1)) return "غداً";
+        return date.ToString("dddd d MMMM");
+    }
 
     public static string ToRoleDisplayName(this string role) => role switch
     {

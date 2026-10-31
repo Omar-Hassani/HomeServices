@@ -658,6 +658,7 @@
     --bs-toast-border-radius: var(--hs-radius);
     --bs-toast-border-color: var(--hs-line);
     --bs-toast-max-width: 380px;
+    --bs-toast-bg: var(--hs-surface);
     box-shadow: var(--hs-shadow-lg);
     border-inline-start: 4px solid var(--hs-primary);
 }
@@ -888,6 +889,53 @@
     font-size: 1.35rem;
     background: var(--hs-danger-100);
     color: var(--hs-danger);
+}
+
+/* ---------- بطاقة الحالة ---------- */
+.status-card {
+    --status-color: var(--hs-info);
+    --status-bg: var(--hs-info-100);
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1.25rem 1.4rem;
+    margin-bottom: 1.5rem;
+    border-radius: var(--hs-radius-lg);
+    background: var(--status-bg);
+    border: 1px solid color-mix(in srgb, var(--status-color) 22%, transparent);
+}
+
+.status-card.is-approved { --status-color: var(--hs-success); --status-bg: var(--hs-success-100); }
+.status-card.is-pending { --status-color: var(--hs-warning); --status-bg: var(--hs-warning-100); }
+.status-card.is-rejected { --status-color: var(--hs-danger); --status-bg: var(--hs-danger-100); }
+
+.status-card-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    font-size: 1.25rem;
+    color: #fff;
+    background: var(--status-color);
+}
+
+.status-card h2 {
+    font-size: 1.08rem;
+    margin-bottom: .25rem;
+}
+
+.status-card p {
+    margin: 0;
+    font-size: .92rem;
+}
+
+.status-card .status-note {
+    margin: .5rem 0;
+    padding: .6rem .8rem;
+    border-radius: var(--hs-radius-sm);
+    background: rgba(255, 255, 255, .65);
 }
 
 /* ---------- اللوحات (البطاقات الإدارية) ---------- */

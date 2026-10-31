@@ -71,8 +71,13 @@
                                 <small class="text-secondary" dir="ltr">@currentUser.Email</small>
                             </li>
                             <li><hr class="dropdown-divider" /></li>
+                            @if (User.IsInRole(Roles.Customer))
+                            {
+                                <li><a class="dropdown-item" asp-area="Customer" asp-controller="Orders" asp-action="Index"><i class="fa-solid fa-clipboard-list"></i>طلباتي</a></li>
+                            }
                             @if (User.IsInRole(Roles.Provider))
                             {
+                                <li><a class="dropdown-item" asp-area="Provider" asp-controller="Orders" asp-action="Index"><i class="fa-solid fa-inbox"></i>الطلبات</a></li>
                                 <li><a class="dropdown-item" asp-area="Provider" asp-controller="Dashboard" asp-action="Index"><i class="fa-solid fa-briefcase"></i>لوحة مقدم الخدمة</a></li>
                             }
                             <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Profile"><i class="fa-regular fa-id-card"></i>حسابي</a></li>

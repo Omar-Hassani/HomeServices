@@ -1,0 +1,32 @@
+@model OrdersPageViewModel
+@{
+    ViewData["Title"] = "طلباتي";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/orders.css" asp-append-version="true" />
+}
+
+<section class="page-hero">
+    <div class="container">
+        <ol class="breadcrumb-hs">
+            <li><a asp-area="" asp-controller="Home" asp-action="Index">الرئيسية</a></li>
+            <li aria-current="page">طلباتي</li>
+        </ol>
+        <div class="d-flex flex-wrap align-items-end justify-content-between gap-3">
+            <div>
+                <h1>طلباتي</h1>
+                <p>تابع حالة طلباتك والتواصل مع مقدمي الخدمات.</p>
+            </div>
+            <a class="btn btn-primary" asp-area="" asp-controller="Providers" asp-action="Index">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i>طلب خدمة جديدة
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="section pt-4">
+    <div class="container" style="max-width: 1000px">
+        <partial name="_OrdersList" model="Model" />
+    </div>
+</section>

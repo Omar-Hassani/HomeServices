@@ -14,6 +14,9 @@ public class ServiceRequestConfiguration : IEntityTypeConfiguration<ServiceReque
         builder.Property(r => r.CancellationReason).HasMaxLength(500);
 
         builder.HasIndex(r => r.OrderNumber).IsUnique();
+
+        // منع تطبيق انتقالين متزامنين على نفس الطلب (مثلاً إلغاء العميل وقبول مقدم الخدمة في نفس اللحظة)
+        builder.Property(r => r.Status).IsConcurrencyToken();
         builder.HasIndex(r => new { r.CustomerId, r.Status });
         builder.HasIndex(r => new { r.ProviderProfileId, r.Status });
 
